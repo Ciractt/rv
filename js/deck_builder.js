@@ -1,545 +1,487 @@
-/*=====================================================================
-   deck_builder.js – Riftmana-style Deck Builder
-   -------------------------------------------------
-   • Advanced client-side filtering (search, colors, set, type, rarity,
-     energy/might/power sliders)
-   • Collection integration (badges, insufficient-collection warning)
-   • Deck sections (Champions / Landmarks / Main Deck)
-   • Mana-curve Chart.js graph
-   • No-restrictions toggle
-   • Export deck as a beautiful image (canvas → JPEG)
-   • All original save / load / export-code logic preserved
-=====================================================================*/
+// Deck Builder JavaScript - Fully Functional
+let currentDeck = [];
+let deckChangeTimeout = null;
 
-;(() => {
-  // -----------------------------------------------------------------
-  // 1. GLOBALS & CONFIG
-  // -----------------------------------------------------------------
-  const colorMap = {
-    Fury:  '#e0292e',
-    Calm:  '#4d8e2f',
-    Mind:  '#2a72a0',
-    Body:  '#e6700d',
-    Chaos: '#6e478f',
-    Order: '#ccae0b'
-  };
-
-  const EXPORT_CONFIG = {
-    canvas: { width: 1200, padding: 30, gap: 12 },
-    brand:   { iconUrl: 'https://cdn.riftmana.com/logo.png', iconSize: 48, gap: 12, topMargin: 20 },
-    colors:  { text: '#ffffff' },
-    deckName: { fontSize: 48 },
-    format:  'image/jpeg',
-    quality: 0.92
-  };
-
-  let currentDeck = [];               // {id, name, cost, quantity}
-  let collectionEnabled = false;      // Show collection toggle
-  let collectionData = {};            // cardId → owned count
-  let noRestriction = false;          // Bypass copy limits
-  let manaChart = null;               // Chart.js instance
-
-  // -----------------------------------------------------------------
-  // 2. DOM READY
-  // -----------------------------------------------------------------
-  document.addEventListener('DOMContentLoaded', () => {
-    // ---- 2.1 Load PHP-passed data -------------------------------------------------
-    if (typeof currentDeckCards !== 'undefined') {
-      currentDeckCards.forEach(c => {
-        for (let i = 0; i < c.quantity; i++) addCardToDeck(c.id, c.name, c.energy);
-      });
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load existing deck if editing
+    if (currentDeckCards && currentDeckCards.length > 0) {
+        currentDeckCards.forEach(card => {
+            for (let i = 0; i < card.quantity; i++) {
+                addCardToDeck(card.id, card.name, card.energy);
+            }
+        });
     }
-    if (typeof collectionData !== 'undefined') collectionData = collectionData;
-    if (typeof allCards !== 'undefined') allCards.forEach(c => cardDatabase[c.id] = c);
 
-    // ---- 2.2 UI wiring -----------------------------------------------------------
-    wireFilters();
-    wireDeckActions();
-    wireModals();
-    wireCollectionToggle();
-    wireNoRestrictionToggle();
-    initManaChart();
+    // Wire up event listeners
+    setupFilters();
+    setupDeckActions();
+    setupModal();
 
-    // initial render
+    // Initial update
     updateDeckDisplay();
-    filterLibrary();               // apply any URL params / defaults
-    builderCollectionUpdateBadges();
-  });
+});
 
-  // -----------------------------------------------------------------
-  // 3. FILTERING (search + advanced)
-  // -----------------------------------------------------------------
-  function wireFilters() {
-    const els = {
-      search:   document.getElementById('librarySearch'),
-      colorBtns:document.querySelectorAll('.color-btn'),
-      set:      document.getElementById('setFilter'),
-      type:     document.getElementById('typeFilter'),
-      rarity:   document.getElementById('rarityFilter'),
-      energyMin:document.getElementById('energyMin'),
-      energyMax:document.getElementById('energyMax'),
-      mightMin: document.getElementById('mightMin'),
-      mightMax: document.getElementById('mightMax'),
-      powerMin: document.getElementById('powerMin'),
-      powerMax: document.getElementById('powerMax')
-    };
+// =============================================================================
+// DECK MANAGEMENT
+// =============================================================================
 
-    // ---- live search -------------------------------------------------
-    els.search.addEventListener('input', () => debounce(filterLibrary, 180));
+function addCardToDeck(cardId, cardName, cardCost) {
+    const existingCard = currentDeck.find(c => c.id === cardId);
 
-    // ---- color buttons ------------------------------------------------
-    els.colorBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('active');
-        filterLibrary();
-      });
-    });
-
-    // ---- dropdowns & sliders -----------------------------------------
-    ['set','type','rarity','energyMin','energyMax','mightMin','mightMax','powerMin','powerMax']
-      .forEach(id => els[id].addEventListener('input', () => debounce(filterLibrary, 120)));
-
-    // ---- range value display -----------------------------------------
-    function updateRangeLabel(id, min, max, anyText = 'Any') {
-      const span = document.getElementById(id);
-      if (min === 0 && max === (id.includes('energy')?12:10)) span.textContent = anyText;
-      else span.textContent = `${min} – ${max}`;
-    }
-    els.energyMin.addEventListener('input', () => updateRangeLabel('energyValue', +els.energyMin.value, +els.energyMax.value));
-    els.energyMax.addEventListener('input', () => updateRange CanvasLabel('energyValue', +els.energyMin.value, +els.energyMax.value));
-    els.mightMin.addEventListener('input', () => updateRangeLabel('mightValue', +els.mightMin.value, +els.mightMax.value));
-    els.mightMax.addEventListener('input', () => updateRangeLabel('mightValue', +els.mightMin.value, +els.mightMax.value));
-    els.powerMin.addEventListener('input', () => updateRangeLabel('powerValue', +els.powerMin.value, +els.powerMax.value));
-    els.powerMax.addEventListener('input', () => updateRangeLabel('powerValue', +els.powerMin.value, +els.powerMax.value));
-  }
-
-  function filterLibrary() {
-    const els = {
-      search:   document.getElementById('librarySearch').value.trim().toLowerCase(),
-      colors:   Array.from(document.querySelectorAll('.color-btn.active')).map(b=>b.dataset.color.toLowerCase()),
-      set:      document.getElementById('setFilter').value.toLowerCase(),
-      type:     document.getElementById('typeFilter').value.toLowerCase(),
-      rarity:   document.getElementById('rarityFilter').value.toLowerCase(),
-      eMin: +document.getElementById('energyMin').value,
-      eMax: +document.getElementById('energyMax').value,
-      mMin: +document.getElementById('mightMin').value,
-      mMax: +document.getElementById('mightMax').value,
-      pMin: +document.getElementById('powerMin').value,
-      pMax: +document.getElementById('powerMax').value
-    };
-
-    document.querySelectorAll('.builder-card').forEach(card => {
-      const d = card.dataset;
-
-      // ---- text search -------------------------------------------------
-      let show = true;
-      if (els.search) {
-        const txt = `${d.name} ${d.cardCode||''} ${d.description||''}`.toLowerCase();
-        if (!txt.includes(els.search)) show = false;
-      }
-
-      // ---- color -------------------------------------------------------
-      if (els.colors.length && !els.colors.includes(d.color?.toLowerCase())) show = false;
-
-      // ---- dropdowns ---------------------------------------------------
-      if (els.set && d.set?.toLowerCase() !== els.set) show = false;
-      if (els.type && d.type?.toLowerCase() !== els.type) show = false;
-      if (els.rarity && d.rarity?.toLowerCase() !== els.rarity) show = false;
-
-      // ---- numeric ranges (allow NULL) ---------------------------------
-      if (show) {
-        const e = d.energy === '' ? null : +d.energy;
-        const m = d.might === '' ? null : +d.might;
-        const p = d.power === '' ? null : +d.power;
-
-        if (e !== null && (e < els.eMin || e > els.eMax)) show = false;
-        if (m !== null && (m < els.mMin || m > els.mMax)) show = false;
-        if (p !== null && (p < els.pMin || p > els.pMax)) show = false;
-      }
-
-      card.style.display = show ? '' : 'none';
-    });
-  }
-
-  // -----------------------------------------------------------------
-  // 4. CARD ADD / REMOVE + COPY LIMITS
-  // -----------------------------------------------------------------
-  window.addCardToDeck = (cardId, cardName, energy) => {
-    const existing = currentDeck.find(c => c.id === cardId);
-    const max = noRestriction ? 99 : (cardDatabase[cardId]?.rarity?.toLowerCase() === 'champion' ? 3 : 3);
-
-    if (existing) {
-      if (existing.quantity >= max) {
-        if (!noRestriction) alert('Maximum copies reached for this card');
-        return;
-      }
-      existing.quantity++;
-    } else {
-      currentDeck.push({ id: cardId, name: cardName, cost: energy, quantity: 1 });
-    }
-    updateDeckDisplay();
-  };
-
-  window.removeCardFromDeck = (cardId) => {
-    const idx = currentDeck.findIndex(c => c.id === cardId);
-    if (idx === -1) return;
-    if (currentDeck[idx].quantity > 1) currentDeck[idx].quantity--;
-    else currentDeck.splice(idx, 1);
-    updateDeckDisplay();
-  };
-
-  // -----------------------------------------------------------------
-  // 5. DECK DISPLAY (sections, badges, warnings)
-  // -----------------------------------------------------------------
-  function updateDeckDisplay() {
-    const total = currentDeck.reduce((s,c)=>s+c.quantity,0);
-    document.getElementById('cardCount').textContent = total;
-
-    const deckList = document.getElementById('deckList');
-    deckList.innerHTML = '';
-
-    if (!currentDeck.length) {
-      deckList.innerHTML = '<p class="empty-deck">Add cards from the library to start building your deck</p>';
-      updateManaChart([]);
-      return;
-    }
-
-    // ---- split into sections -------------------------------------------------
-    const sections = { champion: [], landmark: [], main: [] };
-    currentDeck.forEach(c => {
-      const card = cardDatabase[c.id];
-      const type = (card?.rarity?.toLowerCase() === 'champion') ? 'champion' :
-                   (card?.card_type?.toLowerCase() === 'landmark') ? 'landmark' : 'main';
-      sections[type].push(c);
-    });
-
-    const renderSection = (title, cards) => {
-      if (!cards.length) return '';
-      let html = `<div class="deck-section"><h3>${title}</h3><div class="deck-cards">`;
-      cards.forEach(c => {
-        const owned = collectionData[c.id] || 0;
-        const warn = collectionEnabled && c.quantity > owned ? 'insufficient-collection' : '';
-        html += `
-          <div class="deck-card-item ${warn}" data-card-id="${c.id}" data-quantity="${c.quantity}">
-            <div class="card-mini">
-              <span class="card-energy">${c.cost}</span>
-              <span class="card-name">${c.name}</span>
-              <span>x${c.quantity}</span>
-            </div>
-            <div class="quantity-controls">
-              <button class="btn-icon" onclick="addCardToDeck(${c.id},'${c.name.replace(/'/g,"\\'")}',${c.cost})">plus</button>
-              <button class="btn-icon btn-danger" onclick="removeCardFromDeck(${c.id})">minus</button>
-            </div>
-          </div>`;
-      });
-      html += `</div></div>`;
-      return html;
-    };
-
-    deckList.innerHTML = renderSection('Champions', sections.champion) +
-                         renderSection('Landmarks', sections.landmark) +
-                         renderSection('Main Deck', sections.main);
-
-    // ---- collection warnings -------------------------------------------------
-    if (collectionEnabled) builderCollectionUpdateBadges();
-
-    // ---- mana curve -----------------------------------------------------------
-    updateManaChart(currentDeck);
-  }
-
-  // -----------------------------------------------------------------
-  // 6. COLLECTION INTEGRATION
-  // -----------------------------------------------------------------
-  function wireCollectionToggle() {
-    const cb = document.getElementById('builder-collection-checkbox');
-    if (!cb) return;
-    cb.addEventListener('change', () => {
-      collectionEnabled = cb.checked;
-      builderCollectionUpdateBadges();
-      updateDeckDisplay(); // refresh warnings
-    });
-  }
-
-  function builderCollectionUpdateBadges() {
-    if (!collectionEnabled) {
-      document.querySelectorAll('.builder-collection-badge').forEach(b=>b.remove());
-      return;
-    }
-    document.querySelectorAll('.builder-card').forEach(card => {
-      const id = card.dataset.cardId;
-      const owned = collectionData[id] || 0;
-      const badge = card.querySelector('.builder-collection-badge') ||
-                    document.createElement('div');
-      if (!badge.parentNode) card.appendChild(badge);
-      badge.className = 'builder-collection-badge' + (owned >= 3 ? ' has-playset' : '');
-      badge.textContent = owned;
-    });
-  }
-
-  // -----------------------------------------------------------------
-  // 7. NO-RESTRICTION TOGGLE
-  // -----------------------------------------------------------------
-  function wireNoRestrictionToggle() {
-    const btn = document.getElementById('no-restriction-btn');
-    if (!btn) return;
-    btn.addEventListener('click', () => {
-      noRestriction = !noRestriction;
-      btn.classList.toggle('active', noRestriction);
-    });
-  }
-
-  // -----------------------------------------------------------------
-  // 8. MANA CURVE CHART
-  // -----------------------------------------------------------------
-  function initManaChart() {
-    const ctx = document.getElementById('manaCurveChart').getContext('2d');
-    manaChart = new Chart(ctx, {
-      type: 'bar',
-      data: { labels: [], datasets: [{ label: 'Cards', data: [], backgroundColor: '#4d8e2f' }] },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { title: { display: true, text: 'Energy' } },
-          y: { beginAtZero: true, title: { display: true, text: 'Count' } }
+    if (existingCard) {
+        // Check copy limit (3 per card)
+        if (existingCard.quantity >= 3) {
+            showNotification('Maximum 3 copies per card', 'error');
+            return;
         }
-      }
-    });
-  }
-  function updateManaChart(deck) {
-    const curve = Array(13).fill(0); // 0-12
-    deck.forEach(c => { const cost = c.cost; if (cost >=0 && cost <=12) curve[cost] += c.quantity; });
-    manaChart.data.labels = curve.map((_,i)=>i);
-    manaChart.data.datasets[0].data = curve;
-    manaChart.update('quiet');
-  }
+        existingCard.quantity++;
+    } else {
+        currentDeck.push({
+            id: cardId,
+            name: cardName,
+            cost: cardCost,
+            quantity: 1
+        });
+    }
 
-  // -----------------------------------------------------------------
-  // 9. DECK ACTIONS (save / export code)
-  // -----------------------------------------------------------------
-  function wireDeckActions() {
-    document.getElementById('saveDeckBtn').addEventListener('click', saveDeck);
-    document.getElementById('clearDeckBtn').addEventListener('click', () => confirm('Clear all cards?') && clearDeck());
-    document.getElementById('exportDeckBtn').addEventListener('click', exportDeck);
-    document.getElementById('generateExportImage').addEventListener('click', () => renderDeckImage().finally(() => {}));
-  }
-
-  async function saveDeck() {
-    const name = document.getElementById('deckName').value.trim() || 'Untitled Deck';
-    const desc = document.getElementById('deckDescription').value.trim();
-    const id   = document.getElementById('deckId').value;
-
-    if (!currentDeck.length) return alert('Deck is empty');
-    const form = new FormData();
-    form.append('action','save');
-    form.append('deck_id',id);
-    form.append('deck_name',name);
-    form.append('description',desc);
-    form.append('cards',JSON.stringify(currentDeck));
-
-    const r = await fetch('api/deck.php',{method:'POST',body:form});
-    const d = await r.json();
-    if (d.success) {
-      alert(d.message);
-      document.getElementById('deckId').value = d.deck_id;
-      history.replaceState(null,null,'deck_builder.php?deck_id='+d.deck_id);
-    } else alert(d.message);
-  }
-
-  function clearDeck() {
-    currentDeck = [];
-    document.getElementById('deckName').value = 'Untitled Deck';
-    document.getElementById('deckDescription').value = '';
-    document.getElementById('deckId').value = '';
     updateDeckDisplay();
-  }
+    showNotification('Card added to deck', 'success');
+}
 
-  async function exportDeck() {
-    const id = document.getElementById('deckId').value;
-    if (!id) return alert('Save the deck first');
-    const form = new FormData();
-    form.append('action','export');
-    form.append('deck_id',id);
-    const r = await fetch('api/deck.php',{method:'POST',body:form});
-    const d = await r.json();
-    if (d.success) {
-      navigator.clipboard.writeText(d.deck_code).then(()=>alert('Deck code copied!'));
-    } else alert(d.message);
-  }
+function removeCardFromDeck(cardId) {
+    const cardIndex = currentDeck.findIndex(c => c.id === cardId);
 
-  // -----------------------------------------------------------------
-  // 10. IMAGE EXPORT (Riftmana style)
-  // -----------------------------------------------------------------
-  async function renderDeckImage() {
-    const link = document.getElementById('downloadExportImage');
-    const deckName = document.getElementById('deckName').value.trim() || 'Riftmana Deck';
+    if (cardIndex === -1) return;
 
-    // ---- 1. collect data ----------------------------------------------------
-    const deckData = {
-      legend: null,
-      battlefields: [],
-      mains: [],
-      sideboard: []
-    };
-    currentDeck.forEach(c => {
-      const card = cardDatabase[c.id];
-      const url = card.card_art_url || '';
-      const entry = { url, qty: c.quantity };
-      if (card.rarity?.toLowerCase() === 'champion') deckData.legend = entry;
-      else if (card.card_type?.toLowerCase() === 'battlefield') deckData.battlefields.push(entry);
-      else deckData.mains.push(entry);
-    });
-
-    // ---- 2. layout -----------------------------------------------------------
-    const { layout, mainCards } = calculateLayout(deckData, !!deckName);
-
-    // ---- 3. canvas -----------------------------------------------------------
-    const { canvas, ctx } = createCanvas(EXPORT_CONFIG.canvas.width, layout.canvasHeight);
-    const cfg = EXPORT_CONFIG.canvas;
-
-    // ---- 4. load images ------------------------------------------------------
-    const urls = [...new Set([ ...deckData.battlefields.map(b=>b.url),
-                               ...mainCards.map(m=>m.url),
-                               EXPORT_CONFIG.brand.iconUrl ].filter(Boolean))];
-    const images = await Promise.all(urls.map(loadImage));
-    const imgMap = new Map(); images.forEach(i=> imgMap.set(i.url, i.img));
-
-    // ---- 5. draw -------------------------------------------------------------
-    drawBackground(ctx, EXPORT_CONFIG.canvas.width, layout.canvasHeight);
-    let y = cfg.padding;
-
-    // deck name
-    if (deckName) {
-      ctx.fillStyle = EXPORT_CONFIG.colors.text;
-      ctx.font = `700 ${EXPORT_CONFIG.deckName.fontSize}px system-ui, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(deckName, EXPORT_CONFIG.canvas.width/2, y + EXPORT_CONFIG.deckName.fontSize/2);
-      y += EXPORT_CONFIG.deckName.fontSize + cfg.padding;
+    if (currentDeck[cardIndex].quantity > 1) {
+        currentDeck[cardIndex].quantity--;
+    } else {
+        currentDeck.splice(cardIndex, 1);
     }
 
-    // legend (rotated)
-    if (deckData.legend && imgMap.has(deckData.legend.url)) {
-      const img = imgMap.get(deckData.legend.url);
-      const h = layout.left.legendHeight;
-      ctx.save();
-      ctx.translate(cfg.padding + h/2, y + h/2);
-      ctx.rotate(Math.PI/2);
-      drawImageCover(ctx, img, -h/2, -layout.left.width/2, h, layout.left.width);
-      ctx.restore();
-      drawCountBadge(ctx, cfg.padding, y, layout.left.width, h, deckData.legend.qty);
-      y += h + layout.left.legendToBfGap;
+    updateDeckDisplay();
+}
+
+function removeAllCopies(cardId) {
+    currentDeck = currentDeck.filter(c => c.id !== cardId);
+    updateDeckDisplay();
+}
+
+function clearDeck() {
+    if (confirm('Clear all cards from this deck?')) {
+        currentDeck = [];
+        document.getElementById('deckName').value = 'Untitled Deck';
+        document.getElementById('deckDescription').value = '';
+        document.getElementById('deckId').value = '';
+        updateDeckDisplay();
+        showNotification('Deck cleared', 'success');
+    }
+}
+
+// =============================================================================
+// DECK DISPLAY
+// =============================================================================
+
+function updateDeckDisplay() {
+    const deckList = document.getElementById('deckList');
+    const totalCards = currentDeck.reduce((sum, card) => sum + card.quantity, 0);
+    const uniqueCards = currentDeck.length;
+
+    // Update stats
+    document.getElementById('cardCount').textContent = totalCards;
+    document.getElementById('uniqueCards').textContent = uniqueCards;
+
+    // Calculate average cost
+    let totalCost = 0;
+    currentDeck.forEach(card => {
+        totalCost += (card.cost || 0) * card.quantity;
+    });
+    const avgCost = totalCards > 0 ? (totalCost / totalCards).toFixed(1) : 0;
+    document.getElementById('avgCost').textContent = avgCost;
+
+    // Check for warnings
+    updateDeckWarnings(totalCards);
+
+    // Render deck list
+    if (currentDeck.length === 0) {
+        deckList.innerHTML = '<div class="empty-deck"><p>Click cards from the library to add them to your deck</p></div>';
+        return;
     }
 
-    // battlefields
-    deckData.battlefields.forEach(bf => {
-      const img = imgMap.get(bf.url);
-      if (!img) return;
-      const h = layout.left.battlefieldSlotHeight;
-      const w = layout.left.width;
-      ctx.save();
-      ctx.translate(cfg.padding + w/2, y + h/2);
-      ctx.rotate(Math.PI/2);
-      drawImageCover(ctx, img, -h/2, -w/2, h, w);
-      ctx.restore();
-      drawCountBadge(ctx, cfg.padding, y, w, h, bf.qty);
-      y += h + layout.left.battlefieldGap;
+    // Sort cards by cost, then name
+    const sortedDeck = [...currentDeck].sort((a, b) => {
+        if (a.cost !== b.cost) return a.cost - b.cost;
+        return a.name.localeCompare(b.name);
     });
 
-    // branding
-    if (deckData.battlefields.length) {
-      y += EXPORT_CONFIG.brand.topMargin;
-      const brand = imgMap.get(EXPORT_CONFIG.brand.iconUrl);
-      let x = cfg.padding;
-      if (brand) {
-        ctx.drawImage(brand, x, y, EXPORT_CONFIG.brand.iconSize, EXPORT_CONFIG.brand.iconSize);
-        x += EXPORT_CONFIG.brand.iconSize + EXPORT_CONFIG.brand.gap;
-      }
-      ctx.fillStyle = EXPORT_CONFIG.colors.text;
-      ctx.font = '600 26px system-ui, sans-serif';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(EXPORT_CONFIG.brand.text || 'Rift Mana', x, y + EXPORT_CONFIG.brand.iconSize/2);
-      y += EXPORT_CONFIG.brand.iconSize + cfg.padding;
+    // Group by card type
+    const champions = [];
+    const units = [];
+    const spells = [];
+    const other = [];
+
+    sortedDeck.forEach(deckCard => {
+        const card = cardDatabase[deckCard.id];
+        if (!card) return;
+
+        const cardType = card.card_type?.toLowerCase();
+        if (card.rarity?.toLowerCase() === 'champion') {
+            champions.push({ ...deckCard, card });
+        } else if (cardType === 'unit') {
+            units.push({ ...deckCard, card });
+        } else if (cardType === 'spell') {
+            spells.push({ ...deckCard, card });
+        } else {
+            other.push({ ...deckCard, card });
+        }
+    });
+
+    let html = '';
+
+    if (champions.length > 0) {
+        html += renderDeckSection('Champions', champions);
+    }
+    if (units.length > 0) {
+        html += renderDeckSection('Units', units);
+    }
+    if (spells.length > 0) {
+        html += renderDeckSection('Spells', spells);
+    }
+    if (other.length > 0) {
+        html += renderDeckSection('Other', other);
     }
 
-    // right panel (main grid)
-    const rightX = layout.right.x;
-    const slotW = layout.right.slotWidth;
-    const slotH = layout.right.slotHeight;
-    mainCards.forEach((c,i) => {
-      const img = imgMap.get(c.url);
-      if (!img) return;
-      const row = Math.floor(i / layout.right.columns);
-      const col = i % layout.right.columns;
-      const x = rightX + col * (slotW + cfg.gap);
-      const yy = y + row * (slotH + cfg.gap);
-      drawImageCover(ctx, img, x, yy, slotW, slotH);
-      drawCountBadge(ctx, x, yy, slotW, slotH, c.qty);
+    deckList.innerHTML = html;
+}
+
+function renderDeckSection(title, cards) {
+    let html = `<div class="deck-section">`;
+    html += `<div class="deck-section-title">${title} (${cards.reduce((sum, c) => sum + c.quantity, 0)})</div>`;
+
+    cards.forEach(deckCard => {
+        const card = deckCard.card;
+        const owned = userCollection[deckCard.id] || 0;
+        const insufficient = deckCard.quantity > owned;
+
+        html += `
+            <div class="deck-card ${insufficient ? 'insufficient-copies' : ''}">
+                <div class="deck-card-info">
+                    <div class="deck-card-cost">${card.energy ?? '-'}</div>
+                    <div class="deck-card-name">${card.name}</div>
+                    <div class="deck-card-quantity">x${deckCard.quantity}</div>
+                </div>
+                <div class="deck-card-controls">
+                    <button class="btn-icon" onclick="addCardToDeck(${deckCard.id}, '${card.name.replace(/'/g, "\\'")}', ${card.energy ?? 0})" title="Add one">+</button>
+                    <button class="btn-icon" onclick="removeCardFromDeck(${deckCard.id})" title="Remove one">-</button>
+                    <button class="btn-icon btn-danger" onclick="removeAllCopies(${deckCard.id})" title="Remove all">×</button>
+                </div>
+            </div>
+        `;
     });
 
-    // ---- 6. download ---------------------------------------------------------
-    const file = (deckName + '.jpg').replace(/[^\w.-]+/g, '_');
-    canvas.toBlob(blob => {
-      const url = URL.createObjectURL(blob);
-      link.href = url; link.download = file; link.style.display = 'inline-flex';
-    }, EXPORT_CONFIG.format, EXPORT_CONFIG.quality);
-  }
+    html += `</div>`;
+    return html;
+}
 
-  // -----------------------------------------------------------------
-  // 11. CANVAS HELPERS (layout, drawing, images)
-  // -----------------------------------------------------------------
-  function calculateLayout(deckData, hasName) {
-    const cfg = EXPORT_CONFIG.canvas;
-    const cols = 8;
-    const slotW = Math.floor((cfg.width - cfg.padding*2 - cfg.gap*(cols-1)) / cols);
-    const slotH = Math.floor(slotW / (2.5/3.5));
+function updateDeckWarnings(totalCards) {
+    const warningsDiv = document.getElementById('deckWarnings');
+    const warnings = [];
 
-    const mainCards = [...deckData.mains];
-    const mainRows = Math.ceil(mainCards.length / cols);
-    const sideRows = Math.ceil(deckData.sideboard.length / cols);
+    // Check deck size
+    if (totalCards < 40) {
+        warnings.push(`Deck needs at least 40 cards (currently ${totalCards})`);
+    } else if (totalCards > 60) {
+        warnings.push(`Deck should not exceed 60 cards (currently ${totalCards})`);
+    }
 
-    const layout = {
-      left: { width: 250, legendHeight: 350, legendToBfGap: 30,
-              battlefieldSlotHeight: 120, battlefieldGap: 12 },
-      right: { x: cfg.padding + layout.left.width + 60, columns: cols,
-               slotWidth: slotW, slotHeight: slotH },
-      canvasHeight: 0
-    };
-    layout.right.height = mainRows * slotH + Math.max(0, mainRows-1)*cfg.gap;
-    const deckNameHeight = hasName ? 80 : 0;
-    layout.canvasHeight = deckNameHeight + layout.right.height + cfg.padding*2;
-    return { layout, mainCards };
-  }
+    // Check for cards not in collection
+    const missingCards = [];
+    currentDeck.forEach(deckCard => {
+        const owned = userCollection[deckCard.id] || 0;
+        if (deckCard.quantity > owned) {
+            const card = cardDatabase[deckCard.id];
+            const shortage = deckCard.quantity - owned;
+            missingCards.push(`${card.name} (need ${shortage} more)`);
+        }
+    });
 
-  function createCanvas(w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; return {canvas:c, ctx:c.getContext('2d')}; }
-  function drawBackground(ctx,w,h){ ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h); }
-  function drawImageCover(ctx,img,x,y,w,h){ const r = img.width / img.height; const s = Math.max(w/img.width, h/img.height); const nw = img.width*s, nh = img.height*s; ctx.drawImage(img, x + (w-nw)/2, y + (h-nh)/2, nw, nh); }
-  function drawCountBadge(ctx,x,y,w,h,qty){ ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.font = 'bold 28px system-ui'; ctx.textBaseline='top'; ctx.fillText(qty, x + w - 40, y + h - 40); }
-  function loadImage(url){ return new Promise(r=>{ const i=new Image(); i.onload =()=>r({url,img:i}); i.onerror=()=>r({url,img:null}); i.src = url; }); }
+    if (missingCards.length > 0) {
+        warnings.push(`Missing cards: ${missingCards.join(', ')}`);
+    }
 
-  // -----------------------------------------------------------------
-  // 12. MODALS
-  // -----------------------------------------------------------------
-  function wireModals() {
+    // Display warnings
+    if (warnings.length > 0) {
+        warningsDiv.innerHTML = `
+            <div class="warning-box">
+                <h4>⚠️ Deck Warnings</h4>
+                <ul>
+                    ${warnings.map(w => `<li>${w}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    } else {
+        warningsDiv.innerHTML = '';
+    }
+}
+
+// =============================================================================
+// FILTERING
+// =============================================================================
+
+function setupFilters() {
+    const searchInput = document.getElementById('cardSearch');
+    const energyFilter = document.getElementById('energyFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const rarityFilter = document.getElementById('rarityFilter');
+    const regionFilter = document.getElementById('regionFilter');
+
+    searchInput.addEventListener('input', filterLibrary);
+    energyFilter.addEventListener('change', filterLibrary);
+    typeFilter.addEventListener('change', filterLibrary);
+    rarityFilter.addEventListener('change', filterLibrary);
+    regionFilter.addEventListener('change', filterLibrary);
+}
+
+function filterLibrary() {
+    const searchTerm = document.getElementById('cardSearch').value.toLowerCase();
+    const energyValue = document.getElementById('energyFilter').value;
+    const typeValue = document.getElementById('typeFilter').value.toLowerCase();
+    const rarityValue = document.getElementById('rarityFilter').value.toLowerCase();
+    const regionValue = document.getElementById('regionFilter').value.toLowerCase();
+
+    const cards = document.querySelectorAll('.library-card');
+
+    cards.forEach(card => {
+        const name = card.dataset.name;
+        const energy = card.dataset.energy;
+        const type = card.dataset.type;
+        const rarity = card.dataset.rarity;
+        const region = card.dataset.region;
+
+        let show = true;
+
+        // Search filter
+        if (searchTerm && !name.includes(searchTerm)) {
+            show = false;
+        }
+
+        // Energy filter
+        if (energyValue && energy !== energyValue) {
+            show = false;
+        }
+
+        // Type filter
+        if (typeValue && type !== typeValue) {
+            show = false;
+        }
+
+        // Rarity filter
+        if (rarityValue && rarity !== rarityValue) {
+            show = false;
+        }
+
+        // Region filter
+        if (regionValue && region !== regionValue) {
+            show = false;
+        }
+
+        card.style.display = show ? '' : 'none';
+    });
+}
+
+// =============================================================================
+// DECK ACTIONS (Save, Export, etc.)
+// =============================================================================
+
+function setupDeckActions() {
+    document.getElementById('saveDeckBtn').addEventListener('click', saveDeck);
+    document.getElementById('clearDeckBtn').addEventListener('click', clearDeck);
+    document.getElementById('exportDeckBtn').addEventListener('click', exportDeck);
+}
+
+async function saveDeck() {
+    const deckName = document.getElementById('deckName').value.trim();
+    const deckDescription = document.getElementById('deckDescription').value.trim();
+    const deckId = document.getElementById('deckId').value;
+
+    if (!deckName) {
+        showNotification('Please enter a deck name', 'error');
+        return;
+    }
+
+    if (currentDeck.length === 0) {
+        showNotification('Cannot save an empty deck', 'error');
+        return;
+    }
+
+    const totalCards = currentDeck.reduce((sum, card) => sum + card.quantity, 0);
+    if (totalCards < 40) {
+        if (!confirm(`Your deck only has ${totalCards} cards. Decks should have at least 40 cards. Save anyway?`)) {
+            return;
+        }
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'save');
+    formData.append('deck_id', deckId);
+    formData.append('deck_name', deckName);
+    formData.append('description', deckDescription);
+    formData.append('cards', JSON.stringify(currentDeck));
+
+    try {
+        const response = await fetch('api/deck.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification(data.message, 'success');
+
+            // Update deck ID if this was a new deck
+            if (data.deck_id) {
+                document.getElementById('deckId').value = data.deck_id;
+
+                // Update URL without reloading
+                const newUrl = `deck_builder_new.php?deck_id=${data.deck_id}`;
+                window.history.replaceState({}, '', newUrl);
+            }
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        showNotification('Failed to save deck', 'error');
+    }
+}
+
+async function exportDeck() {
+    const deckId = document.getElementById('deckId').value;
+
+    if (!deckId) {
+        showNotification('Please save the deck first', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'export');
+    formData.append('deck_id', deckId);
+
+    try {
+        const response = await fetch('api/deck.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Copy to clipboard
+            navigator.clipboard.writeText(data.deck_code).then(() => {
+                showNotification('Deck code copied to clipboard!', 'success');
+
+                // Also show it in an alert for manual copy if needed
+                prompt('Deck code (already copied to clipboard):', data.deck_code);
+            }).catch(() => {
+                // Fallback: show in prompt
+                prompt('Copy this deck code:', data.deck_code);
+            });
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Failed to export deck', 'error');
+    }
+}
+
+async function deleteDeck(deckId) {
+    if (!confirm('Delete this deck permanently?')) {
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('deck_id', deckId);
+
+    try {
+        const response = await fetch('api/deck.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification(data.message, 'success');
+
+            // Reload after a short delay
+            setTimeout(() => {
+                window.location.href = 'deck_builder_new.php';
+            }, 1000);
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        showNotification('Failed to delete deck', 'error');
+    }
+}
+
+// =============================================================================
+// MODAL
+// =============================================================================
+
+function setupModal() {
     const modal = document.getElementById('loadDeckModal');
-    const close = modal.querySelector('.close');
-    document.getElementById('loadDeckBtn').addEventListener('click',()=>modal.classList.add('active'));
-    close.addEventListener('click',()=>modal.classList.remove('active'));
-    window.addEventListener('click', e => { if (e.target===modal) modal.classList.remove('active'); });
-  }
+    const loadBtn = document.getElementById('loadDeckBtn');
+    const closeBtn = modal.querySelector('.close');
 
-  // -----------------------------------------------------------------
-  // 13. UTILS
-  // -----------------------------------------------------------------
-  function debounce(fn, wait) {
-    let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),wait); };
-  }
+    loadBtn.addEventListener('click', () => {
+        modal.classList.add('active');
+    });
 
-  // expose for deleteDeck in PHP
-  window.deleteDeck = async (deckId) => {
-    if (!confirm('Delete this deck permanently?')) return;
-    const form = new FormData(); form.append('action','delete'); form.append('deck_id',deckId);
-    const r = await fetch('api/deck.php',{method:'POST',body:form});
-    const d = await r.json(); alert(d.message); if (d.success) location.reload();
-  };
-})();
+    closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+}
+
+// =============================================================================
+// NOTIFICATIONS
+// =============================================================================
+
+function showNotification(message, type) {
+    const existing = document.querySelector('.notification');
+    if (existing) {
+        existing.remove();
+    }
+
+    const notification = document.createElement('div');
+    notification.className = 'notification notification-' + type;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => notification.classList.add('show'), 10);
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// =============================================================================
+// EXPOSE FUNCTIONS GLOBALLY
+// =============================================================================
+
+window.addCardToDeck = addCardToDeck;
+window.removeCardFromDeck = removeCardFromDeck;
+window.removeAllCopies = removeAllCopies;
+window.deleteDeck = deleteDeck;
