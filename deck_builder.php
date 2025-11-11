@@ -36,7 +36,7 @@ while ($row = $stmt->fetch()) {
 // Load all cards for the library
 $all_cards = $pdo->query("
     SELECT * FROM cards
-    ORDER BY energy, name
+    ORDER BY card_code
 ")->fetchAll();
 
 // Get unique values for filters
