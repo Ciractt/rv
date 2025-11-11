@@ -1,0 +1,20 @@
+.edgtf-testimonials-holder {
+
+    &.edgtf-testimonials-image-pagination {
+
+        @include phone-landscape {
+
+            .edgtf-testimonials-image-pagination-inner {
+                padding: 0 10px 0 30%;
+                box-sizing: border-box;
+
+                .edgtf-testimonial-text {
+                    font-size: 15px;
+                    line-height: 27px;
+                }
+
+            }
+
+        }
+    }
+}

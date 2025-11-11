@@ -1,0 +1,65 @@
+/* ==========================================================================
+   Testimonials standard style - begin
+   ========================================================================== */
+
+.edgtf-testimonials-holder {
+    
+    &.edgtf-testimonials-standard {
+        text-align: center;
+
+        .edgtf-testimonial-image {
+            @include edgtfRelativeHolderLayout();
+            margin: 25px 0 0;
+
+            img {
+                display: block;
+                margin: 0 auto;
+            }
+        }
+
+        .edgtf-testimonial-title {
+            margin: 0;
+        }
+
+        .edgtf-testimonial-author {
+            margin: 24px 0 0;
+        }
+
+        .edgtf-testimonial-text {
+            margin: 19px 0 0;
+            color: #a7a9ac;
+        }
+
+        /* Light/Dark styles */
+        &.edgtf-testimonials-light {
+            
+            .edgtf-testimonial-title,
+            .edgtf-testimonial-text,
+            .edgtf-testimonial-author {
+                color: #fff;
+            }
+
+            .owl-dots {
+                
+                .owl-dot {
+                    
+                    span {
+                        border: 2px solid rgba(#fff, .5);
+                    }
+                    
+                    &:hover,
+                    &.active {
+
+                        span {
+                            background-color: #fff;
+                            border-color: #fff;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+/* ==========================================================================
+   Testimonials standard style - end
+   ========================================================================== */

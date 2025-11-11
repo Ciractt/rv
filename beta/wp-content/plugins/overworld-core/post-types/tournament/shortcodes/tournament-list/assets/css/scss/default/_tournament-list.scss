@@ -1,0 +1,81 @@
+/* ==========================================================================
+# Tournament list - begin
+	========================================================================== */
+
+.edgtf-tournament-list-holder {
+    @include edgtfRelativeHolderLayout();
+
+    @include laptop-landscape-large {
+
+        &.edgtf-grid-list {
+
+            &.edgtf-four-columns,
+            &.edgtf-five-columns,
+            &.edgtf-six-columns {
+
+                .edgtf-item-space {
+                    width: calc(100% / 3);
+
+                    &:nth-child(4n+1),
+                    &:nth-child(5n+1),
+                    &:nth-child(6n+1) {
+                        clear: none;
+                    }
+
+                    &:nth-child(3n+1) {
+                        clear: both;
+                    }
+                }
+            }
+        }
+    }
+
+    @include laptop-landscape-medium {
+
+        &.edgtf-grid-list {
+
+            &.edgtf-three-columns,
+            &.edgtf-four-columns,
+            &.edgtf-five-columns,
+            &.edgtf-six-columns {
+
+                .edgtf-item-space {
+                    width: 50%;
+
+                    &:nth-child(3n+1) {
+                        clear: none;
+                    }
+
+                    &:nth-child(2n+1) {
+                        clear: both;
+                    }
+                }
+            }
+        }
+    }
+
+    @include ipad-landscape {
+
+        &.edgtf-grid-list {
+
+            &.edgtf-two-columns,
+            &.edgtf-three-columns,
+            &.edgtf-four-columns,
+            &.edgtf-five-columns,
+            &.edgtf-six-columns {
+
+                .edgtf-item-space {
+                    width: 100%;
+
+                    &:nth-child(2n+1) {
+                        clear: none;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+# Tournament list - end
+========================================================================== */

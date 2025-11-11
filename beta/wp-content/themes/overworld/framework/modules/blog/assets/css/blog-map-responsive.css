@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Blog responsive styles - begin
+   ========================================================================== */
+@media only screen and (max-width: 768px) {
+  .edgtf-related-posts-holder .edgtf-related-post {
+    width: 50% !important;
+  }
+  .edgtf-blog-single-navigation {
+    padding: 10px 0 26px 0;
+  }
+  .edgtf-blog-single-navigation .edgtf-blog-single-prev,
+  .edgtf-blog-single-navigation .edgtf-blog-single-next {
+    position: relative;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 40%;
+  }
+  .edgtf-blog-single-navigation .edgtf-blog-single-prev .edgtf-blog-single-nav-label,
+  .edgtf-blog-single-navigation .edgtf-blog-single-next .edgtf-blog-single-nav-label {
+    position: relative;
+    -webkit-transform: none !important;
+    -ms-transform: none !important;
+    transform: none !important;
+    top: 0;
+  }
+  .edgtf-blog-single-navigation .edgtf-blog-single-prev {
+    float: left;
+    text-align: left;
+  }
+  .edgtf-blog-single-navigation .edgtf-blog-single-next {
+    float: right;
+    text-align: right;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .edgtf-related-posts-holder .edgtf-related-post {
+    width: 100% !important;
+  }
+}
+
+/* ==========================================================================
+   Blog Slider shortcode responsive style - begin
+   ========================================================================== */
+@media only screen and (max-width: 1024px) {
+  .edgtf-blog-slider-holder.edgtf-bs-carousel-centered .active.center .edgtf-item-text-wrapper {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Blog Slider shortcode responsive style - end
+   ========================================================================== */
+/* ==========================================================================
+   Blog responsive styles - end
+   ========================================================================== */
+
+/*# sourceMappingURL=blog-map-responsive.css.map */

@@ -1,0 +1,266 @@
+.edgtf-match-single-holder {
+	@include edgtfRelativeHolderLayout();
+	
+	.edgtf-match-single-top-holder {
+		position: relative;
+		
+		.edgtf-match-single-image-background {
+			display: block;
+			height: 458px;
+		}
+		
+		.edgtf-match-single-info-top {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			
+			.edgtf-match-single-info-top-inner {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 80%;
+				max-width: 1025px;
+			}
+			
+			.edgtf-match-bg-ribbon {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				height: 93px;
+				width: 90%;
+				max-width: 1025px;
+				transform: translateX(-50%) translateY(-50%);
+				@include edgtfButtonClipPathMain();
+				
+				.edgtf-decoration {
+					position: absolute;
+					top: 9px;
+					font-size: 20px;
+					font-weight: 600;
+					color: #8101e3;
+					
+					&.edgtf-decoration-left {
+						left: 15px;
+					}
+					
+					&.edgtf-decoration-right {
+						right: 15px;
+					}
+					
+					&.edgtf-winner {
+						color: $custom-color;
+					}
+				}
+			}
+			
+			.edgtf-match-scoreboard {
+				position: relative;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 100%;
+				
+				.edgtf-match-team-logo {
+					width: 25%;
+					
+					img {
+						width: auto;
+						max-height: 273px;
+					}
+					
+					&.edgtf-team-1-logo {
+						text-align: left;
+					}
+					
+					&.edgtf-team-2-logo {
+						text-align: right;
+					}
+				}
+				
+				.edgtf-match-score {
+					position: relative;
+					top: 2px;
+					width: 39%;
+					display: flex;
+					align-items: center;
+					justify-content: space-evenly;
+					@include edgtfHeadingStyle(h1);
+					line-height: 1;
+					
+					.edgtf-edge &,
+					.edgtf-ms-explorer &,
+					.edgtf-safari & {
+						justify-content: space-around;
+					}
+					
+					@include phone-landscape {
+						@include edgtfHeadingStyle(h2);
+					}
+					
+					@include smaller-phone-portrait {
+						width: 33%;
+						@include edgtfHeadingStyle(h3);
+					}
+					
+					.edgtf-match-score-separator {
+						font-size: 45px;
+						
+						@include smaller-phone-portrait {
+							font-size: 25px;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	.edgtf-match-main-content {
+		margin-top: 96px;
+		margin-bottom: 60px;
+		
+		@include ipad-landscape {
+			margin-bottom: 0;
+		}
+	}
+	
+	.edgtf-match-title {
+		margin: 0;
+	}
+	
+	.edgtf-match-info-top {
+		margin-bottom: 6px;
+		
+		> div {
+			position: relative;
+			display: inline-block;
+			vertical-align: top;
+			padding: 0 21px 0 0;
+			color: $first-main-color;
+			font-size: 14px;
+			font-family: $default-heading-font;
+			font-weight: 600;
+			line-height: 1.43em;
+			letter-spacing: 0.1em;
+			text-transform: uppercase;
+			
+			&.edgtf-match-categories {
+				
+				.edgtf-match-category {
+					position: relative;
+					display: inline-block;
+					vertical-align: top;
+					padding: 0 25px 0 0;
+					
+					&:after {
+						content: '/';
+						position: absolute;
+						top: 0;
+						right: 9px;
+					}
+					
+					&:last-child {
+						padding: 0;
+						
+						&:after {
+							content: '';
+						}
+					}
+				}
+			}
+			
+			&:after {
+				content: '/';
+				position: absolute;
+				top: 0;
+				right: 5px;
+			}
+			
+			&:last-child {
+				padding: 0;
+				
+				&:after {
+					content: '';
+				}
+			}
+			
+			a {
+				color: inherit;
+				
+				&:hover {
+					color: $first-main-color;
+				}
+			}
+		}
+	}
+	
+	.edgtf-match-info-bottom {
+		@include edgtfRelativeHolderLayout();
+		padding-top: 26px;
+		
+		.edgtf-match-info-bottom-left,
+		.edgtf-match-info-bottom-right {
+			@include edgtfRelativeHolderLayout();
+		}
+		
+		@media only screen and (min-width: $ipad-portrait-plus-pixel) {
+			
+			.edgtf-match-info-bottom-left,
+			.edgtf-match-info-bottom-right {
+				width: 50%;
+			}
+			
+			.edgtf-match-info-bottom-left {
+				float: left;
+			}
+			
+			.edgtf-match-info-bottom-right {
+				text-align: right;
+				float: right;
+			}
+		}
+		
+		.edgtf-match-info-bottom-right {
+			
+			> div {
+				margin-left: 17px;
+				
+				&:first-child {
+					margin-left: 0;
+				}
+			}
+		}
+	}
+	
+	.edgtf-match-tags-holder {
+		
+		> * {
+			display: inline-block;
+			margin: 0;
+			line-height: 26px;
+		}
+		
+		.edgtf-match-tags {
+			position: relative;
+			top: -1px;
+			padding-left: 11px;
+			
+			.edgtf-match-tag {
+				color: $default-text-color;
+				font-size: 15px;
+			}
+		}
+	}
+	
+	.edgtf-match-content {
+		margin-top: 16px;
+	}
+	
+	.edgtf-comment-form .edgtf-comment-form-inner {
+		padding-bottom: 78px;
+	}
+}

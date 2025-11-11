@@ -1,0 +1,298 @@
+/* ==========================================================================
+   Button shortcode style - begin
+   ========================================================================== */
+
+.edgtf-btn {
+	@include edgtfButtonDefaultStyle();
+	@include edgtfButtonSize();
+	cursor: pointer;
+
+	/* Special, custom buttons */
+
+	&.edgtf-btn-outline {
+
+		.edgtf-btn-special-red & {
+			color: #fff;
+			border-color: #ff3549;
+
+			.edgtf-btn-bg-holder {
+				background-color: #ff3549;
+			}
+
+			@media (min-width: 1400px) {
+
+				.edgtf-safari & {
+
+					&:before {
+						top: 5px;
+						right: -6px;
+						width: 32px;
+					}
+				}
+			}
+
+			&:before,
+			&:after {
+				background-color: #ff3549;
+			}
+
+			&:not(.edgtf-btn-custom-hover-color):hover {
+				color: #fff !important;
+			}
+
+			&:not(.edgtf-btn-custom-hover-bg):hover {
+				background-color: transparent !important;
+			}
+
+			&:not(.edgtf-btn-custom-border-hover):hover {
+				border-color: #ff3549 !important;
+			}
+		}
+	}
+
+	&.edgtf-btn-simple {
+		padding: 0 !important;
+		color: $default-heading-color;
+		background-color: transparent;
+		border: 0;
+		vertical-align: middle;
+		
+		.edgtf-btn-text {
+			display: inline-block;
+			vertical-align: middle;
+		}
+		
+		> i {
+			transition: .3s cubic-bezier(0.25, 0.1, 0, 1.03);
+			
+			&:before {
+				font-size: 18px;
+			}
+		}
+
+		&:hover {
+			> i {
+				transform: translateX(3px);
+			}
+		}
+		
+		&:not(.edgtf-btn-custom-hover-color):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			color: #fff !important;
+		}
+		
+		&:not(.edgtf-btn-custom-hover-bg):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			background-color: transparent !important;
+		}
+		
+		&:not(.edgtf-btn-custom-border-hover):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			border-color: transparent !important;
+		}
+	}
+	
+	&.edgtf-btn-solid {
+		@include edgtfButtonSolidColor();
+		@include edgtfButtonClipPathMain();
+		
+		&:not(.edgtf-btn-custom-hover-color):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			color: #fff !important;
+		}
+		
+		&:not(.edgtf-btn-custom-hover-bg):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			background-color: $second-main-color !important;
+		}
+		
+		&:not(.edgtf-btn-custom-border-hover):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			border-color: transparent !important;
+		}
+	}
+	
+	&.edgtf-btn-outline {
+		@include edgtfButtonOutlineColor();
+		@include edgtfButtonClipPathMain();
+		@include edgtfButtonClipPathLines();
+		
+		&:not(.edgtf-btn-custom-hover-color):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			color: #fff !important;
+		}
+		
+		&:not(.edgtf-btn-custom-hover-bg):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			background-color: $first-main-color !important;
+		}
+
+		&:not(.edgtf-btn-custom-border-hover):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			border-color: $first-main-color !important;
+		}
+	}
+	
+	&.edgtf-btn-small {
+		@include edgtfButtonSize(small);
+	}
+	
+	&.edgtf-btn-large {
+		@include edgtfButtonSize(large);
+	}
+	
+	&.edgtf-btn-huge {
+		@include edgtfButtonSize(huge);
+	}
+	
+	&.edgtf-btn-icon {
+		
+		> i,
+		> span:not(.edgtf-btn-text) {
+			position: relative;
+			top: -2px;
+			display: inline-block;
+			vertical-align: middle;
+			margin: 0 0 0 11px;
+			font-size: 1.142857142857143em;
+			line-height: inherit;
+			
+			&:before {
+				display: block;
+				line-height: inherit;
+			}
+		}
+		
+		&.edgtf-btn-icon-left {
+			> i,
+			> span:not(.edgtf-btn-text) {
+				margin: 0 11px 0 0;
+			}
+		}
+	}
+	
+	&.edgtf-btn-cutting-edge {
+		@include edgtfButtonClipPathMain();
+	}
+}
+
+// Stripe button animation
+
+.edgtf-btn-stripe {
+	
+	.edgtf-edge &, .edgtf-ms-explorer & {
+		overflow: hidden;
+	}
+
+	&.edgtf-btn-solid {
+
+		.edgtf-btn-bg-holder {
+			background-color: $second-main-color;
+		}
+		
+		&:not(.edgtf-btn-custom-hover-bg):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			background-color: $first-main-color !important;
+		}
+	}
+
+	&.edgtf-btn-outline {
+
+		&:not(.edgtf-btn-custom-hover-bg):hover {
+			//important because of inline color attribute. :not is used so we don't have to use important in JS
+			background-color: transparent !important;
+		}
+	}
+
+	.edgtf-button-holder {
+		position: relative;
+		z-index: 50;
+	}
+
+	&:hover {
+		.edgtf-btn-bg-holder {
+			transition: .5s cubic-bezier(0.1, 0.48, 0.25, 0.86);
+			transform: rotate(45deg) translate3d(0,-85%,0);
+		}
+	}
+
+	.edgtf-btn-text {
+		z-index: 12;
+		position: relative;
+	}
+		
+	.edgtf-btn-bg-holder {
+		background-color: $first-main-color;
+		position: absolute;
+		display: block;
+		top: 104%;
+		left: -114%;
+		width: 150%;
+		height: 600%;
+		z-index: 1;
+		transform: rotate(45deg) translate3d(0, 0, 0);
+		transition: .5s cubic-bezier(0.24, 0.69, 0.12, 0.9);
+		pointer-events: none;
+	}
+
+	&.edgtf-btn-large {
+
+		.edgtf-btn-bg-holder {
+			height: 800%;
+		}
+	}
+	
+	&.edgtf-btn-huge {
+
+		.edgtf-btn-bg-holder {
+			height: 1400%;
+		}
+
+		&:hover {
+
+			.edgtf-btn-bg-holder {
+				transition: 1s cubic-bezier(0.24, 0.69, 0.12, 0.9);
+			}
+		}
+	}
+
+	&.wpcf7-submit {
+
+		.edgtf-btn-bg-holder {
+			z-index: -1;
+		}
+	}
+
+	&.add_to_cart_button, 
+	&.single_add_to_cart_button, 
+	&.button.wc-forward {
+		
+		.edgtf-btn-bg-holder {
+			z-index: -1;
+		}
+	}
+
+	&.add_to_cart_button, 
+	&.button.wc-forward {
+		
+		&:hover {
+			background-color: transparent !important;
+		}
+	}
+
+	&.single_add_to_cart_button {
+		border: none !important;
+
+		.edgtf-btn-bg-holder {
+			background-color: $second-main-color;
+		}
+
+		&:hover {
+			background-color: $first-main-color !important;
+		}
+	}
+}
+
+/* ==========================================================================
+   Button shortcode style - end
+   ========================================================================== */

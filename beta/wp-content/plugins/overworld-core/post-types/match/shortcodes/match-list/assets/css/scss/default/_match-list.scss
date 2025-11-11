@@ -1,0 +1,68 @@
+/* ==========================================================================
+# Match list - begin
+	========================================================================== */
+
+.edgtf-match-list-holder {
+    @include edgtfRelativeHolderLayout();
+
+    .edgtf-match {
+        margin: 0 0 70px;
+        padding: 0 0 20px;
+    
+        .edgtf-safari & {
+            padding: 0 15px 20px;
+        }
+
+        .edgtf-team-holder {
+
+            .edgtf-team-name {
+                opacity: 0;
+                transition: .3s cubic-bezier(0.1, 0.74, 0.25, 1);
+                transform: translateY(50px) translateX(-50px);
+            }
+
+            .edgtf-team-logo {
+                opacity: 0;
+                transition: .3s cubic-bezier(0.1, 0.74, 0.25, 1);
+                transform: translateY(-45%) translateX(-50px);
+            }
+
+            &.edgtf-team-2 {
+
+                .edgtf-team-name {
+                    transition-delay: .1s;
+                    transform: translateY(50px) translateX(50px);
+                }
+
+                .edgtf-team-logo {
+                    transition-delay: .1s;
+                    transform: translateY(-45%) translateX(50px);
+                }
+            }
+        }
+
+        &:last-of-type {
+            margin: 0;
+        }
+
+        &.edgtf-appear {
+
+            .edgtf-team-holder {
+
+                .edgtf-team-name {
+                    opacity: 1;
+                    transform: translateY(0) translateX(0) !important;
+                }
+
+                .edgtf-team-logo {
+                    opacity: 1;
+                    transform: translateY(-50%) translateX(0) !important;
+                }
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+# Match list - end
+========================================================================== */

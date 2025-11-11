@@ -1,0 +1,19 @@
+/* ==========================================================================
+   Global partials
+   ========================================================================== */
+/* ==========================================================================
+   Custom Post Types responsive styles
+   ========================================================================== */
+@media only screen and (max-width: 680px) {
+  .edgtf-testimonials-holder.edgtf-testimonials-image-pagination .edgtf-testimonials-image-pagination-inner {
+    padding: 0 10px 0 30%;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  .edgtf-testimonials-holder.edgtf-testimonials-image-pagination .edgtf-testimonials-image-pagination-inner .edgtf-testimonial-text {
+    font-size: 15px;
+    line-height: 27px;
+  }
+}
+
+/*# sourceMappingURL=../../../../plugins/overworld-core/assets/css/custom-post-types-map-responsive.css.map */

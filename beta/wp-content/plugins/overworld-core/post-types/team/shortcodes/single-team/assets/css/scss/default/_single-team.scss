@@ -1,0 +1,112 @@
+/* ==========================================================================
+# Team info - begin
+	========================================================================== */
+
+.edgtf-team {
+    @include edgtfRelativeHolderLayout();
+    cursor: pointer;
+    @include edgtfBoxShadows();
+
+    .edgtf-team-inner {
+        @include edgtfRelativeHolderLayout();
+        padding: 28px;
+        box-sizing: border-box;
+        background-color: #20132a;
+        text-align: center;
+        transition: .3s cubic-bezier(0.21, 0.04, 0, 1.07);
+    }
+
+    &:hover {
+
+        .edgtf-team-inner {
+            @include edgtfButtonClipPathMain();
+            transform: translateY(-10px);
+        }
+    }
+
+    .edgtf-team-categories {
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+        color: $first-main-color;
+        font-size: 14px;
+        font-family: $default-heading-font;
+        font-weight: 600;
+        line-height: 1.43em;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+
+        .edgtf-team-category {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            padding: 0 25px 0 0;
+
+            &:after {
+                content: '/';
+                position: absolute;
+                top: 0;
+                right: 9px;
+            }
+
+            &:last-child {
+                padding: 0;
+
+                &:after {
+                    content: '';
+                }
+            }
+        }
+    }
+
+    .edgtf-team-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 203px;
+        margin: 0;
+
+        img {
+            width: auto;
+            max-height: 171px;
+        }
+    }
+
+    .edgtf-team-name {
+        margin: 0;
+    }
+
+    .edgtf-team-social-holder {
+        margin: 3px 0 0;
+
+        .edgtf-team-social-icons {
+            display: block;
+        }
+
+        .edgtf-team-icon {
+            margin-right: 10px;
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+
+            a {
+                position: relative;
+                display: block;
+                z-index: 1;
+
+                .edgtf-icon-element {
+                    transition: none;
+                }
+            }
+        }
+    }
+
+    .edgtf-team-overlay-link {
+        @include edgtfAbsoluteHolderLayout();
+    }
+}
+
+/* ==========================================================================
+# Team info - end
+	========================================================================== */

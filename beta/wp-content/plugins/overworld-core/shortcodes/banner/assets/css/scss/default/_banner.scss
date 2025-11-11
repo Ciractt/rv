@@ -1,0 +1,105 @@
+/* ==========================================================================
+   Banner shortcode style - begin
+   ========================================================================== */
+
+.edgtf-banner-holder {
+    @include edgtfRelativeHolderLayout();
+
+	.touch & {
+		cursor: pointer;
+	}
+
+	&.edgtf-visible-on-hover {
+
+		&:hover {
+
+			.edgtf-banner-text-holder {
+				opacity: 1;
+			}
+		}
+
+		.edgtf-banner-text-holder {
+			opacity: 0;
+			transition: opacity .2s ease-out;
+		}
+	}
+
+	&.edgtf-disabled {
+
+		.edgtf-banner-text-holder {
+			display: none;
+		}
+	}
+
+	&.edgtf-banner-info-centered {
+
+		.edgtf-banner-text-holder {
+			padding: 20px;
+			text-align: center;
+		}
+
+		.edgtf-banner-text-inner {
+			vertical-align: middle;
+		}
+	}
+
+	.edgtf-banner-image {
+		@include edgtfRelativeHolderLayout();
+		overflow: hidden;
+
+		img {
+			display: block;
+		}
+	}
+
+	.edgtf-banner-text-holder {
+		@include edgtfAbsoluteHolderLayout();
+		padding: 35px;
+		box-sizing: border-box;
+
+		@include ipad-portrait {
+			padding: 25px;
+		}
+	}
+
+	.edgtf-banner-text-outer {
+		@include edgtfTableLayout();
+	}
+
+	.edgtf-banner-text-inner {
+		position: relative;
+		display: table-cell;
+		height: 100%;
+		width: 100%;
+		vertical-align: bottom;
+	}
+
+	.edgtf-banner-subtitle {
+		margin: 0;
+		color: #fff;
+	}
+
+	div.edgtf-banner-subtitle {
+		font-family: $default-heading-font;
+		font-size: 13px;
+		font-style: italic;
+		color: #ffeadc;
+	}
+
+	.edgtf-banner-title {
+		margin: 0;
+		color: #fff;
+
+		.edgtf-banner-title-light {
+			font-weight: 300;
+		}
+	}
+
+	.edgtf-banner-link {
+		@include edgtfAbsoluteHolderLayout();
+		z-index: 1;
+	}
+}
+/* ==========================================================================
+   Banner shortcode style - end
+   ========================================================================== */

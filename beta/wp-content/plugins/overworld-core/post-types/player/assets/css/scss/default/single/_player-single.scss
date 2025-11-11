@@ -1,0 +1,274 @@
+.edgtf-player-single-holder {
+	@include edgtfRelativeHolderLayout();
+	
+	.edgtf-player-single-top-holder {
+		position: relative;
+		
+		.edgtf-player-single-image-background {
+			display: block;
+			height: 600px;
+			
+			@include phone-landscape {
+				height: 450px;
+			}
+		}
+		
+		.edgtf-player-single-info-top {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: flex-start;
+			justify-content: center;
+			
+			.edgtf-player-single-info-top-inner {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+				text-align: center;
+				box-sizing: border-box;
+			}
+			
+			img {
+				display: inline-block;
+				width: auto;
+				max-height: 170px;
+				margin: 6px 0 25px;
+				border: 3px solid #5821a9;
+				border-radius: 100%;
+				box-sizing: border-box;
+			}
+			
+			.edgtf-nickname {
+				margin: 0 0 8px;
+			}
+			
+			.edgtf-name {
+				margin: 0;
+				color: $first-main-color;
+			}
+			
+			//Responsiv for iphone6
+			@media only screen and (max-width: 375px) {
+				
+				.edgtf-player-single-info-top-inner {
+					
+					.edgtf-safari & {
+						margin-top: 54px;
+					}
+				}
+				
+				img {
+					.edgtf-safari & {
+						max-height: 90px;
+						margin: 6px 0 18px;
+					}
+				}
+				
+				.edgtf-nickname {
+					
+					.edgtf-safari & {
+						font-size: 35px;
+					}
+				}
+			}
+		}
+	}
+	
+	.edgtf-player-info-holder {
+		
+		.edgtf-player-info-main {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 30px 38px 27px 40px;
+			background-color: #20132a;
+			box-shadow: 0 10px 27px 0 rgba(6, 5, 7, 0.5);
+			box-sizing: border-box;
+			transform: translateY(-50%);
+			
+			@include ipad-landscape {
+				flex-direction: column;
+				
+				.edgtf-player-section {
+					width: auto;
+					margin-bottom: 20px;
+					
+					&:last-of-type {
+						margin-bottom: 0;
+					}
+				}
+			}
+		}
+		
+		.edgtf-player-team {
+			width: 24%;
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			
+			.edgtf-player-team-thumb {
+				margin-right: 17px;
+				
+				a, img {
+					display: block;
+				}
+				
+				img {
+					width: auto;
+					max-height: 52px;
+				}
+			}
+			
+			.edgtf-player-team-meta {
+				display: flex;
+				flex-direction: column;
+				
+				.edgtf-player-team-name {
+					@include edgtfHeadingStyle(h4);
+					margin: 0;
+				}
+			}
+		}
+		
+		.edgtf-player-social-holder {
+			width: 25%;
+			line-height: 1;
+			
+			.edgtf-player-social-title {
+				@include edgtfHeadingStyle(h6);
+				margin: 0 23px 0 0;
+				color: $first-main-color;
+			}
+			
+			.edgtf-player-social-icons {
+				
+				.edgtf-player-icon {
+					margin-right: 22px;
+					
+					.edgtf-icon-shortcode {
+						
+						.edgtf-icon-element {
+							transition: none;
+						}
+					}
+					
+					&:last-child {
+						margin-right: 0;
+					}
+				}
+			}
+		}
+		
+		.edgtf-player-personal {
+			width: 40%;
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			flex-wrap: wrap;
+		}
+		
+		.edgtf-player-info-container {
+			margin-left: 43px;
+			
+			@include phone-landscape {
+				width: 50%;
+				margin-left: 0;
+				margin-bottom: 20px;
+				text-align: center;
+				
+				&:nth-last-of-type(1) {
+					width: 100%;
+					margin-bottom: 0;
+				}
+			}
+			
+			&:first-child {
+				margin-left: 0;
+			}
+		}
+		
+		.edgtf-player-info-content {
+			line-height: 1.05em;
+			
+			@include ipad-landscape {
+				text-align: center;
+			}
+			
+			.edgtf-player-info-icon,
+			.edgtf-player-info-title {
+				display: inline-block;
+				vertical-align: middle;
+			}
+			
+			.edgtf-player-info-icon {
+				margin-right: 6px;
+				font-size: 17px;
+				font-weight: 500;
+				color: #624ca6;
+				
+				&.edgtf-player-nationality-flag {
+					
+					img {
+						width: auto;
+						max-height: 11px;
+					}
+				}
+				
+				&.edgtf-player-age-icon {
+					margin-right: 2px;
+				}
+				
+				img {
+					display: block;
+				}
+			}
+			
+			.edgtf-player-info-title {
+				@include edgtfHeadingStyle(h5);
+				margin: 0;
+			}
+		}
+		
+		.edgtf-player-info-label {
+			@include edgtfHeadingStyle(h6);
+			margin: 3px 0 0;
+			color: $first-main-color;
+			opacity: .7;
+		}
+		
+		.edgtf-player-info-description {
+			position: relative;
+			margin: 11px 0;
+			
+			@include ipad-landscape {
+				margin-top: -41px;
+			}
+			
+			@include phone-landscape {
+				margin-top: -73px;
+			}
+		}
+		
+		.edgtf-player-description-content {
+			max-width: 62%;
+			margin: 19px 0 0;
+			
+			@include laptop-landscape-mac {
+				max-width: 74%;
+			}
+			
+			@include ipad-landscape {
+				max-width: 100%;
+			}
+		}
+	}
+	
+	.edgtf-player-single-content {
+		@include edgtfRelativeHolderLayout();
+		margin: 30px 0 0;
+	}
+}

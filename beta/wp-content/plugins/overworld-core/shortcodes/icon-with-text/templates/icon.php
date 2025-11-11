@@ -1,0 +1,1 @@
+<?php echo overworld_edge_execute_shortcode('edgtf_icon', $icon_parameters); ?>

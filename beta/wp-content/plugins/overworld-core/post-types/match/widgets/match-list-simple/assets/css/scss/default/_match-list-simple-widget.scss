@@ -1,0 +1,30 @@
+.edgtf-match-list-simple-widget {
+	background-color: $additional-background-color;
+	margin: 0 0 40px;
+    padding: 39px 30px 38px;
+    box-sizing: border-box;
+	box-shadow: $default-box-shadow;
+
+	.edgtf-match-simple {
+		margin: 0 0 19px;
+
+		.edgtf-team-holder {
+
+			.edgtf-team-logo {
+
+				img {
+					max-height: 68px;
+				}
+			}
+		}
+
+		.edgtf-match-score {
+
+			font-size: 35px;
+
+			.edgtf-match-score-separator {
+				font-size: 20px;
+			}
+		}
+	}
+}

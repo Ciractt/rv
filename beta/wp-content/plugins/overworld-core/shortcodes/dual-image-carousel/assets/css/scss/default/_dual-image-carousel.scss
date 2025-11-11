@@ -1,0 +1,157 @@
+/* ==========================================================================
+   Dual Image Carousel shortcode style - begin
+   ========================================================================== */
+
+.edgtf-dual-image-carousel.swiper-container {
+
+	background-position: center 30%;
+	background-size: 100% 75%;
+	background-repeat: no-repeat;
+	opacity:0;
+	visibility:hidden;
+
+	&.edgtf-full-width {
+		overflow: visible;
+	}
+
+	.swiper-wrapper {
+
+		width: 100%;
+        margin: 0 auto;
+
+		.swiper-slide {
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
+			text-align: center;
+			width: 64%;
+			padding-top: 0;
+			animation: edgtf-dis-non-active 1s forwards;
+
+			&:not(.swiper-slide-active) {
+				animation: edgtf-dis-active 1s forwards;
+			}
+
+			@keyframes edgtf-dis-non-active {
+				0% {
+					padding-top: 6%;
+				}
+				100% {
+					padding-top: 0;
+				}
+			}
+
+			@keyframes edgtf-dis-active {
+				0% {
+					padding-top: 0;
+				}
+				100% {
+					padding-top: 6%;
+				}
+			}
+			
+			.edgtf-slide-foreground-image-holder {
+				position: relative;
+				margin-top: -11.2%;
+			}
+
+			.edgtf-slide-foreground-image {
+				transition-timing-function: cubic-bezier(0.21, 0.58, 0, 1.02);
+			}
+
+			.edgtf-slide-background-image {
+
+				img {
+					box-shadow: $default-box-shadow;
+				}
+			}
+		}
+	}
+
+	&.edgtf-dual-image-carousel-loaded {
+		opacity:1;
+		visibility:visible;
+	}
+
+	.swiper-navigation {
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		width: 64%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		transform: translateX(-50%);
+		z-index: 1;
+		transition: top 1s ease-in-out;
+
+		.edgtf-swiper-button {
+			display: flex;
+			align-items: center;
+			color: #fff;
+			text-align: center;
+			cursor: pointer;
+			z-index:10;
+			transition: color .2s ease-out;
+
+			> span {
+				position: relative;
+				display: inline-block;
+			}
+
+			.edgtf-icon {
+				top: -1px;
+				font-size: 18px;
+				font-weight: 500;
+			}
+
+			.edgtf-text {
+				@include edgtfHeadingStyle(h6);
+				color: inherit;
+			}
+
+			&.edgtf-swiper-button-prev {
+
+				&:hover {
+
+					.edgtf-icon {
+						transform: translateX(-3px);
+					}
+				}
+
+				.edgtf-icon {
+					margin-right: 14px;
+					transition: .5s cubic-bezier(0.2, 1.22, 0.37, 0.99);
+				}
+
+				.edgtf-text:before {
+					content: attr(data-prev-num);
+				}
+	    	}
+
+	    	&.edgtf-swiper-button-next {
+				flex-direction: row-reverse;
+				
+				&:hover {
+
+					.edgtf-icon {
+						transform: translateX(3px);
+					}
+				}
+
+			    .edgtf-icon {
+					margin-left: 14px;
+					transition: .5s cubic-bezier(0.2, 1.22, 0.37, 0.99);
+				}
+
+			    .edgtf-text:after {
+					content: attr(data-next-num);
+				}
+	    	}
+		}
+	}
+}
+
+/* ==========================================================================
+   Dual Image Carousel shortcode style - end
+   ========================================================================== */

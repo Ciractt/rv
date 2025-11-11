@@ -1,0 +1,73 @@
+/* ==========================================================================
+# Match info - begin
+	========================================================================== */
+
+.edgtf-match-simple {
+
+	.edgtf-match-inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.edgtf-team-holder {
+		position: relative;
+
+		.edgtf-team-logo {
+
+			a, img {
+				display: block;
+			}
+
+			img {
+				width: auto;
+				max-height: 171px;
+
+				@include phone-landscape {
+					max-height: 141px;
+				}
+
+				@include phone-portrait {
+					max-height: 91px;
+				}
+			}
+		}
+	}
+
+	.edgtf-match-board {
+		position: relative;
+	    display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		padding: 0 28px;
+		box-sizing: border-box;
+
+		.edgtf-ms-explorer & {
+			width: 100%;
+		}
+	}
+
+	.edgtf-match-score {
+	    display: flex;
+		align-items: center;
+		justify-content: center;
+
+		@include edgtfHeadingStyle(h2);
+
+		.edgtf-match-score-separator {
+			padding: 0 17px;
+			font-size: 25px;
+		}
+	}
+
+	.edgtf-match-date {
+		@include edgtfHeadingStyle(h6);
+		margin: 4px 0 0;
+		text-align: center;
+	}
+}
+
+/* ==========================================================================
+# Match info - end
+	========================================================================== */

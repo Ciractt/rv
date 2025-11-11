@@ -1,0 +1,3 @@
+<a itemprop="url" <?php overworld_edge_class_attribute( overworld_edge_get_dropdown_cart_icon_class() ); ?> href="<?php echo esc_url( wc_get_cart_url() ); ?>">
+	<span class="edgtf-sc-opener-icon"><?php echo overworld_edge_get_icon_sources_html( 'dropdown_cart', false, array( 'dropdown_cart' => 'yes' ) ); ?><span class="edgtf-sc-opener-count"><?php echo WC()->cart->cart_contents_count; ?></span></span>
+</a>

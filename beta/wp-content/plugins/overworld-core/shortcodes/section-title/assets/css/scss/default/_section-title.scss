@@ -1,0 +1,184 @@
+/* ==========================================================================
+   Section Title shortcode styles - begin
+   ========================================================================== */
+
+.edgtf-section-title-holder {
+    @include edgtfRelativeHolderLayout();
+	box-sizing: border-box;
+
+	&.edgtf-left-position {
+		text-align: left;
+	}
+	&.edgtf-center-position {
+		text-align: center;
+	}
+	&.edgtf-right-position {
+		text-align: right;
+	}
+
+	&.edgtf-simple-decorated-title {
+
+		&.edgtf-center-position {
+
+			.edgtf-st-title-holder {
+				padding: 0 24px;
+			}
+		}
+
+		&.edgtf-right-position {
+
+			.edgtf-st-title-holder {
+				padding: 0 24px 0 0;
+
+				&:before {
+					left: auto;
+					right: 0;
+				}
+			}
+		}
+
+		.edgtf-st-title-holder {
+			padding: 0 0 0 24px;
+
+			&:before {
+				content: '';
+				position: absolute;
+				top: 50%;
+				left: 0;
+				display: block;
+				width: 3px;
+				height: 90%;
+				background-color: #5821a9;
+				transform: translateY(-50%);
+			}
+		}
+	}
+
+	&.edgtf-text-decorated-title {
+
+		&.edgtf-appear {
+
+			.edgtf-st-title {
+				transform: translateX(0) !important;
+			}
+
+			.edgtf-st-title-text-decoration {
+				transform: rotate(-90deg) translateX(0) !important;
+			}
+
+			.edgtf-st-text, .edgtf-st-button {
+				opacity: 1;
+				transform: translateY(0);
+			}
+
+			.edgtf-st-text {
+				transition: .5s .5s;
+			}
+
+			.edgtf-st-button {
+				transition: .5s .7s;
+			}
+
+			&.edgtf-right-position {
+
+				.edgtf-st-title-text-decoration {
+					transform: rotate(-90deg) translateX(100%) !important;
+				}
+			}
+		}
+
+		.edgtf-st-title {
+			transform: translateX(-105%);
+			transition: 1s cubic-bezier(0.44, 1.1, 0.53, 0.99);
+		}
+
+		.edgtf-st-text, .edgtf-st-button {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+
+		&.edgtf-center-position {
+
+			.edgtf-st-title-holder {
+				padding: 0 45px;
+			}
+		}
+
+		&.edgtf-right-position {
+
+			.edgtf-st-title {
+				transform: translateX(105%);
+			}
+
+			.edgtf-st-title-holder {
+				padding: 0 45px 0 0;
+
+				.edgtf-st-title-text-decoration {
+					left: auto;
+					right: 4px;
+					transform-origin: right center;
+					transform: rotate(-90deg) translateX(0);
+				}
+			}
+		}
+
+		.edgtf-st-title-holder {
+			padding: 0 0 0 45px;
+			overflow: hidden;
+
+			.edgtf-st-title-text-decoration {
+				position: absolute;
+			    bottom: 4px;
+			    left: 6px;
+				font-family: $default-heading-font;
+				font-size: 15px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: .1em;
+				color: $default-heading-color;
+				transform: rotate(-90deg) translateX(-120%);
+				transform-origin: left center;
+				transition: 1s .5s cubic-bezier(0.44, 1.1, 0.53, 0.99);
+
+				.edgtf-prefix {
+					color: $first-main-color;
+				}
+			}
+		}
+
+		&.edgtf-h1-title .edgtf-st-title-holder .edgtf-st-title-text-decoration { bottom: 4px; }
+		&.edgtf-h2-title .edgtf-st-title-holder .edgtf-st-title-text-decoration { bottom: -1px; }
+		&.edgtf-h3-title .edgtf-st-title-holder .edgtf-st-title-text-decoration { bottom: -7px; }
+		&.edgtf-h4-title .edgtf-st-title-holder .edgtf-st-title-text-decoration { bottom: -8px; }
+		&.edgtf-h5-title .edgtf-st-title-holder .edgtf-st-title-text-decoration { bottom: -9px; }
+		&.edgtf-h6-title .edgtf-st-title-holder .edgtf-st-title-text-decoration { bottom: -8px; }
+	}
+
+	.edgtf-st-title-holder {
+		position: relative;
+	}
+
+    .edgtf-st-title {
+        margin: 0;
+    }
+    
+    .edgtf-st-text {
+	    display: block;
+        margin: 18px 0 0;
+    }
+	
+	.edgtf-st-button {
+		position: relative;
+		display: inline-block;
+		vertical-align: top;
+		
+		.edgtf-btn {
+			margin-top: 27px;
+		}
+	}
+}
+/* ==========================================================================
+   Section Title shortcode styles - end
+   ========================================================================== */
+
+

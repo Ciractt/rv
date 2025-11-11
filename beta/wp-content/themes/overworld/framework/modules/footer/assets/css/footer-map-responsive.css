@@ -1,0 +1,84 @@
+/* ==========================================================================
+   Footer responsive styles - begin
+   ========================================================================== */
+/* ==========================================================================
+   Footer responsive style - begin
+   ========================================================================== */
+@media only screen and (max-width: 1024px) and (min-width: 681px) {
+  .edgtf-page-footer .edgtf-column-content.edgtf-grid-col-3, .edgtf-page-footer .edgtf-column-content.edgtf-grid-col-4, .edgtf-page-footer .edgtf-column-content.edgtf-grid-col-6 {
+    margin-top: 30px;
+  }
+  .edgtf-page-footer .edgtf-column-content.edgtf-grid-col-3:first-child, .edgtf-page-footer .edgtf-column-content.edgtf-grid-col-4:first-child, .edgtf-page-footer .edgtf-column-content.edgtf-grid-col-6:first-child {
+    margin-top: 0;
+  }
+}
+
+@media only screen and (max-width: 1024px) {
+  .edgtf-page-footer .edgtf-footer-top-holder .edgtf-footer-top-inner .edgtf-grid-row {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner.edgtf-full-width {
+    padding: 40px 7.5% 22px;
+  }
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner .edgtf-grid-col-4,
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner .edgtf-grid-col-6,
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner .edgtf-grid-col-12 {
+    text-align: center;
+  }
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner .edgtf-grid-col-4:last-of-type,
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner .edgtf-grid-col-6:last-of-type,
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner .edgtf-grid-col-12:last-of-type {
+    text-align: center;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .edgtf-page-footer .edgtf-footer-top-holder .edgtf-footer-top-inner.edgtf-full-width {
+    padding: 44px 84px;
+  }
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner.edgtf-full-width {
+    padding: 40px 84px 22px;
+  }
+}
+
+@media only screen and (max-width: 680px) {
+  .edgtf-page-footer .edgtf-column-content:not(:first-child) {
+    margin-top: 30px;
+  }
+  .edgtf-page-footer .edgtf-footer-top-holder .edgtf-footer-top-inner.edgtf-full-width {
+    padding: 44px 130px;
+  }
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner.edgtf-full-width {
+    padding: 40px 130px 22px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .edgtf-page-footer .edgtf-footer-top-holder .edgtf-footer-top-inner.edgtf-full-width {
+    padding: 44px 60px;
+  }
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner.edgtf-full-width {
+    padding: 40px 60px 22px;
+  }
+}
+
+@media only screen and (max-width: 320px) {
+  .edgtf-page-footer .edgtf-footer-top-holder .edgtf-footer-top-inner.edgtf-full-width {
+    padding: 44px 5%;
+  }
+  .edgtf-page-footer .edgtf-footer-bottom-holder .edgtf-footer-bottom-inner.edgtf-full-width {
+    padding: 40px 5% 22px;
+  }
+}
+
+/* ==========================================================================
+   Footer responsive style - end
+   ========================================================================== */
+/* ==========================================================================
+   Footer responsive styles - end
+   ========================================================================== */
+
+/*# sourceMappingURL=footer-map-responsive.css.map */
