@@ -1,1 +1,0 @@
-<?php do_action( 'overworld_edge_get_footer_template' );
