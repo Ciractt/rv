@@ -100,9 +100,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($action === 'publish') {
         $deck_id = intval($_POST['deck_id'] ?? 0);
+        $featured_card_id = intval($_POST['featured_card_id'] ?? 0);
 
         if ($deck_id <= 0) {
             $response['message'] = 'Invalid deck ID';
+        } elseif ($featured_card_id <= 0) {
+            $response['message'] = 'Please select a featured card';
         } else {
             // Verify deck belongs to user
             $stmt = $pdo->prepare("SELECT id FROM decks WHERE id = ? AND user_id = ?");
@@ -111,11 +114,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$stmt->fetch()) {
                 $response['message'] = 'Deck not found';
             } else {
-                $stmt = $pdo->prepare("UPDATE decks SET is_published = TRUE, published_at = NOW() WHERE id = ?");
-                $stmt->execute([$deck_id]);
+                // Verify featured card is in the deck
+                $stmt = $pdo->prepare("SELECT id FROM deck_cards WHERE deck_id = ? AND card_id = ?");
+                $stmt->execute([$deck_id, $featured_card_id]);
 
-                $response['success'] = true;
-                $response['message'] = 'Deck published successfully!';
+                if (!$stmt->fetch()) {
+                    $response['message'] = 'Selected card is not in this deck';
+                } else {
+                    $stmt = $pdo->prepare("UPDATE decks SET is_published = TRUE, published_at = NOW(), featured_card_id = ? WHERE id = ?");
+                    $stmt->execute([$featured_card_id, $deck_id]);
+
+                    $response['success'] = true;
+                    $response['message'] = 'Deck published successfully!';
+                }
             }
         }
     } elseif ($action === 'unpublish') {

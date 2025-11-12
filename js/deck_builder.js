@@ -2,6 +2,7 @@
 let currentDeck = [];
 let deckChangeTimeout = null;
 let isPublished = false;
+let selectedFeaturedCardId = null;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -14,14 +15,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Set published status
+    // Set published status and featured card
     isPublished = currentDeckPublished;
+    selectedFeaturedCardId = currentFeaturedCardId;
     updatePublishButton();
 
     // Wire up event listeners
     setupFilters();
     setupDeckActions();
     setupModal();
+    setupFeaturedCardModal();
 
     // Initial update
     updateDeckDisplay();
@@ -351,7 +354,7 @@ async function saveDeck() {
                 document.getElementById('deckId').value = data.deck_id;
 
                 // Update URL without reloading
-                const newUrl = `deck_builder_new.php?deck_id=${data.deck_id}`;
+                const newUrl = `deck_builder.php?deck_id=${data.deck_id}`;
                 window.history.replaceState({}, '', newUrl);
 
                 // Show publish button now that deck is saved
@@ -388,18 +391,32 @@ async function togglePublish() {
         return;
     }
 
-    const action = isPublished ? 'unpublish' : 'publish';
-    const confirmMsg = isPublished
-        ? 'Unpublish this deck? Other players will no longer be able to view it.'
-        : 'Publish this deck? Other players will be able to view and copy it.';
+    if (isPublished) {
+        // Unpublish - just confirm and do it
+        if (!confirm('Unpublish this deck? Other players will no longer be able to view it.')) {
+            return;
+        }
 
-    if (!confirm(confirmMsg)) {
-        return;
+        await publishDeck('unpublish', deckId, null);
+    } else {
+        // Publish - show featured card selection modal
+        if (currentDeck.length === 0) {
+            showNotification('Cannot publish an empty deck', 'error');
+            return;
+        }
+
+        showFeaturedCardSelection();
     }
+}
 
+async function publishDeck(action, deckId, featuredCardId) {
     const formData = new FormData();
     formData.append('action', action);
     formData.append('deck_id', deckId);
+
+    if (action === 'publish' && featuredCardId) {
+        formData.append('featured_card_id', featuredCardId);
+    }
 
     try {
         const response = await fetch('api/deck.php', {
@@ -411,6 +428,9 @@ async function togglePublish() {
 
         if (data.success) {
             isPublished = !isPublished;
+            if (action === 'publish') {
+                selectedFeaturedCardId = featuredCardId;
+            }
             updatePublishButton();
             showNotification(data.message, 'success');
 
@@ -489,7 +509,7 @@ async function deleteDeck(deckId) {
 
             // Reload after a short delay
             setTimeout(() => {
-                window.location.href = 'deck_builder_new.php';
+                window.location.href = 'deck_builder.php';
             }, 1000);
         } else {
             showNotification(data.message, 'error');
@@ -548,6 +568,149 @@ function showNotification(message, type) {
 }
 
 // =============================================================================
+// FEATURED CARD SELECTION
+// =============================================================================
+
+function setupFeaturedCardModal() {
+    const modal = document.getElementById('featuredCardModal');
+    const confirmBtn = document.getElementById('confirmFeaturedCard');
+
+    confirmBtn.addEventListener('click', confirmFeaturedCardSelection);
+
+    // Close on ESC key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeFeaturedCardModal();
+        }
+    });
+}
+
+function showFeaturedCardSelection() {
+    const modal = document.getElementById('featuredCardModal');
+    const grid = document.getElementById('featuredCardGrid');
+    const confirmBtn = document.getElementById('confirmFeaturedCard');
+
+    // Clear previous selections
+    grid.innerHTML = '';
+    selectedFeaturedCardId = currentFeaturedCardId; // Use existing featured card if set
+
+    // Get unique cards from deck
+    const uniqueCards = {};
+    currentDeck.forEach(deckCard => {
+        if (!uniqueCards[deckCard.id]) {
+            uniqueCards[deckCard.id] = cardDatabase[deckCard.id];
+        }
+    });
+
+    if (Object.keys(uniqueCards).length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: #999;">No cards in deck</p>';
+        return;
+    }
+
+    // Populate grid with deck cards
+    Object.values(uniqueCards).forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'featured-card-option';
+        cardDiv.style.cssText = `
+            position: relative;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 2/3;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        `;
+
+        if (selectedFeaturedCardId == card.id) {
+            cardDiv.style.border = '3px solid #667eea';
+            cardDiv.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.3)';
+        }
+
+        cardDiv.innerHTML = `
+            <img src="${card.card_art_url || ''}"
+                 alt="${card.name}"
+                 style="width: 100%; height: 100%; object-fit: cover;"
+                 onerror="this.src='/path/to/placeholder.png'">
+            ${selectedFeaturedCardId == card.id ? '<div style="position: absolute; top: 5px; right: 5px; background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">✓ Selected</div>' : ''}
+        `;
+
+        cardDiv.addEventListener('click', () => selectFeaturedCard(card.id));
+        cardDiv.addEventListener('mouseenter', () => {
+            if (selectedFeaturedCardId != card.id) {
+                cardDiv.style.border = '3px solid #ccc';
+            }
+        });
+        cardDiv.addEventListener('mouseleave', () => {
+            if (selectedFeaturedCardId != card.id) {
+                cardDiv.style.border = '3px solid transparent';
+            }
+        });
+
+        grid.appendChild(cardDiv);
+    });
+
+    // Show confirm button if card already selected
+    if (selectedFeaturedCardId) {
+        confirmBtn.style.display = 'inline-block';
+    }
+
+    modal.classList.add('active');
+}
+
+function selectFeaturedCard(cardId) {
+    selectedFeaturedCardId = cardId;
+
+    // Update visual selection
+    const grid = document.getElementById('featuredCardGrid');
+    const cards = grid.querySelectorAll('.featured-card-option');
+
+    cards.forEach(cardDiv => {
+        const isSelected = cardDiv.querySelector('img').alt === cardDatabase[cardId].name;
+
+        if (isSelected) {
+            cardDiv.style.border = '3px solid #667eea';
+            cardDiv.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.3)';
+
+            // Add checkmark if not present
+            if (!cardDiv.querySelector('.featured-card-selected')) {
+                const checkmark = document.createElement('div');
+                checkmark.className = 'featured-card-selected';
+                checkmark.style.cssText = 'position: absolute; top: 5px; right: 5px; background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;';
+                checkmark.textContent = '✓ Selected';
+                cardDiv.appendChild(checkmark);
+            }
+        } else {
+            cardDiv.style.border = '3px solid transparent';
+            cardDiv.style.boxShadow = 'none';
+
+            // Remove checkmark
+            const checkmark = cardDiv.querySelector('.featured-card-selected');
+            if (checkmark) checkmark.remove();
+        }
+    });
+
+    // Show confirm button
+    document.getElementById('confirmFeaturedCard').style.display = 'inline-block';
+}
+
+function confirmFeaturedCardSelection() {
+    if (!selectedFeaturedCardId) {
+        showNotification('Please select a card', 'error');
+        return;
+    }
+
+    const deckId = document.getElementById('deckId').value;
+    closeFeaturedCardModal();
+
+    // Publish with featured card
+    publishDeck('publish', deckId, selectedFeaturedCardId);
+}
+
+function closeFeaturedCardModal() {
+    document.getElementById('featuredCardModal').classList.remove('active');
+}
+
+// =============================================================================
 // EXPOSE FUNCTIONS GLOBALLY
 // =============================================================================
 
@@ -555,3 +718,4 @@ window.addCardToDeck = addCardToDeck;
 window.removeCardFromDeck = removeCardFromDeck;
 window.removeAllCopies = removeAllCopies;
 window.deleteDeck = deleteDeck;
+window.closeFeaturedCardModal = closeFeaturedCardModal;

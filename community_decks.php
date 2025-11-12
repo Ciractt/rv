@@ -10,11 +10,12 @@ $sort = $_GET['sort'] ?? 'recent'; // recent, popular, liked
 
 // Build query
 $query = "
-    SELECT d.*, u.username,
+    SELECT d.*, u.username, c.card_art_url as featured_card_image,
            (SELECT COUNT(*) FROM deck_cards WHERE deck_id = d.id) as unique_cards,
            (SELECT SUM(quantity) FROM deck_cards WHERE deck_id = d.id) as total_cards
     FROM decks d
     JOIN users u ON d.user_id = u.id
+    LEFT JOIN cards c ON d.featured_card_id = c.id
     WHERE d.is_published = TRUE
 ";
 $params = [];
@@ -206,11 +207,12 @@ if ($user) {
         <!-- Featured Decks -->
         <?php
         $featured_stmt = $pdo->query("
-            SELECT d.*, u.username,
+            SELECT d.*, u.username, c.card_art_url as featured_card_image,
                    (SELECT COUNT(*) FROM deck_cards WHERE deck_id = d.id) as unique_cards,
                    (SELECT SUM(quantity) FROM deck_cards WHERE deck_id = d.id) as total_cards
             FROM decks d
             JOIN users u ON d.user_id = u.id
+            LEFT JOIN cards c ON d.featured_card_id = c.id
             WHERE d.is_featured = TRUE AND d.is_published = TRUE
             ORDER BY d.published_at DESC
             LIMIT 1
@@ -222,6 +224,13 @@ if ($user) {
         <div class="featured-section">
             <h2>⭐ Featured Deck</h2>
             <div class="featured-deck">
+                <?php if ($featured_deck['featured_card_image']): ?>
+                    <div style="width: 208px; height: 312px; float: left; margin-right: 1.5rem; border-radius: 8px; overflow: hidden;">
+                        <img src="<?php echo htmlspecialchars($featured_deck['featured_card_image']); ?>"
+                             alt="Featured card"
+                             style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+                <?php endif; ?>
                 <h3><?php echo htmlspecialchars($featured_deck['deck_name']); ?></h3>
                 <p style="margin: 0.5rem 0;">by <?php echo htmlspecialchars($featured_deck['username']); ?></p>
                 <p style="margin: 1rem 0;"><?php echo htmlspecialchars($featured_deck['description']); ?></p>
@@ -230,7 +239,7 @@ if ($user) {
                     <span>❤️ <?php echo $featured_deck['like_count']; ?> likes</span>
                     <span>📋 <?php echo $featured_deck['copy_count']; ?> copies</span>
                 </div>
-                <div style="margin-top: 1rem;">
+                <div style="margin-top: 1rem; clear: both;">
                     <a href="view_deck.php?id=<?php echo $featured_deck['id']; ?>" class="btn btn-primary btn-small">View Deck</a>
                 </div>
             </div>
@@ -271,13 +280,21 @@ if ($user) {
                 <h3>No decks found</h3>
                 <p>Be the first to publish a deck!</p>
                 <?php if ($user): ?>
-                    <a href="deck_builder_new.php" class="btn btn-primary">Create Deck</a>
+                    <a href="deck_builder.php" class="btn btn-primary">Create Deck</a>
                 <?php endif; ?>
             </div>
         <?php else: ?>
             <div class="deck-grid">
                 <?php foreach ($decks as $deck): ?>
                     <div class="deck-card" onclick="window.location.href='view_deck.php?id=<?php echo $deck['id']; ?>'">
+                        <?php if ($deck['featured_card_image']): ?>
+                            <div style="display: flex; justify-content: center; margin: -1.5rem -1.5rem 1rem -1.5rem; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <img src="<?php echo htmlspecialchars($deck['featured_card_image']); ?>"
+                                     alt="Featured card"
+                                     style="width: 208px; height: 312px; object-fit: contain; border-radius: 8px;">
+                            </div>
+                        <?php endif; ?>
+
                         <div class="deck-card-header">
                             <div>
                                 <h3 class="deck-name"><?php echo htmlspecialchars($deck['deck_name']); ?></h3>

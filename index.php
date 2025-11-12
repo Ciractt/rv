@@ -15,7 +15,7 @@ $user = getCurrentUser();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo SITE_NAME; ?> - Home</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style-dark.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -64,10 +64,11 @@ $user = getCurrentUser();
             <h2>Community Decks</h2>
             <?php
             $stmt = $pdo->query("
-                SELECT d.*, u.username,
+                SELECT d.*, u.username, c.card_art_url as featured_card_image,
                        (SELECT SUM(quantity) FROM deck_cards WHERE deck_id = d.id) as total_cards
                 FROM decks d
                 JOIN users u ON d.user_id = u.id
+                LEFT JOIN cards c ON d.featured_card_id = c.id
                 WHERE d.is_published = TRUE
                 ORDER BY d.published_at DESC
                 LIMIT 3
@@ -81,6 +82,13 @@ $user = getCurrentUser();
                         <div class="feature-item"
                              onclick="window.location.href='view_deck.php?id=<?php echo $deck['id']; ?>'"
                              style="cursor: pointer; transition: transform 0.2s;">
+                            <?php if ($deck['featured_card_image']): ?>
+                                <div style="display: flex; justify-content: center; margin-bottom: 1rem; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px;">
+                                    <img src="<?php echo htmlspecialchars($deck['featured_card_image']); ?>"
+                                         alt="Featured card"
+                                         style="width: 208px; height: 312px; object-fit: contain; border-radius: 8px;">
+                                </div>
+                            <?php endif; ?>
                             <h3><?php echo htmlspecialchars($deck['deck_name']); ?></h3>
                             <p style="color: #666; margin: 0.5rem 0;">by <?php echo htmlspecialchars($deck['username']); ?></p>
                             <?php if ($deck['description']): ?>

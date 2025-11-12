@@ -454,6 +454,21 @@ $user_decks = $stmt->fetchAll();
                 <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 0.75rem; border-radius: 5px; margin-bottom: 1rem; font-size: 0.9rem;">
                     <strong>✓ This deck is published</strong><br>
                     <small>Other players can view and copy this deck</small>
+                    <?php if ($current_deck['featured_card_id']): ?>
+                        <?php
+                        $stmt = $pdo->prepare("SELECT name, card_art_url FROM cards WHERE id = ?");
+                        $stmt->execute([$current_deck['featured_card_id']]);
+                        $featured_card = $stmt->fetch();
+                        if ($featured_card):
+                        ?>
+                        <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <img src="<?php echo htmlspecialchars($featured_card['card_art_url']); ?>"
+                                 style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;"
+                                 alt="Featured card">
+                            <small>Featured card: <?php echo htmlspecialchars($featured_card['name']); ?></small>
+                        </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
 
@@ -494,6 +509,24 @@ $user_decks = $stmt->fetchAll();
                 <?php endif; ?>
             </div>
         </div>
+
+        <!-- Featured Card Selection Modal -->
+        <div id="featuredCardModal" class="modal">
+            <div class="modal-content" style="max-width: 900px;">
+                <span class="close" onclick="closeFeaturedCardModal()">&times;</span>
+                <h2>Select Featured Card</h2>
+                <p style="color: #666; margin-bottom: 1rem;">Choose a card from your deck to represent it in the community</p>
+
+                <div id="featuredCardGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; max-height: 60vh; overflow-y: auto; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                    <!-- Cards will be populated by JavaScript -->
+                </div>
+
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button id="confirmFeaturedCard" class="btn btn-primary" style="display: none;">Confirm & Publish</button>
+                    <button onclick="closeFeaturedCardModal()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <?php include 'includes/footer.php'; ?>
@@ -504,6 +537,7 @@ $user_decks = $stmt->fetchAll();
         const userCollection = <?php echo json_encode($user_collection); ?>;
         const allCardsData = <?php echo json_encode($all_cards); ?>;
         const currentDeckPublished = <?php echo $current_deck && $current_deck['is_published'] ? 'true' : 'false'; ?>;
+        const currentFeaturedCardId = <?php echo $current_deck && $current_deck['featured_card_id'] ? $current_deck['featured_card_id'] : 'null'; ?>;
 
         // Create card database for quick lookups
         const cardDatabase = {};

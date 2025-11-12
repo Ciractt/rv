@@ -323,7 +323,7 @@ foreach ($deck_cards as $card) {
             <div class="deck-actions-bar">
                 <?php if ($user): ?>
                     <?php if ($deck['user_id'] == $user['id']): ?>
-                        <a href="deck_builder_new.php?deck_id=<?php echo $deck['id']; ?>" class="btn btn-primary">
+                        <a href="deck_builder.php?deck_id=<?php echo $deck['id']; ?>" class="btn btn-primary">
                             Edit Deck
                         </a>
                     <?php else: ?>
