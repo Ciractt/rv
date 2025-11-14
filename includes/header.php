@@ -22,6 +22,7 @@ if (!isset($user)) {
         <div class="user-info">
             <?php if ($user): ?>
                 <span>Welcome, <?php echo htmlspecialchars($user['username']); ?></span>
+                <a href="account.php" class="btn btn-secondary btn-small">Account</a>
                 <button onclick="logout()" class="btn btn-secondary btn-small">Logout</button>
             <?php else: ?>
                 <a href="login.php" class="btn btn-secondary btn-small">Login</a>

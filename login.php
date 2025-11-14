@@ -40,22 +40,12 @@ if (isLoggedIn()) {
                 <button type="submit" class="btn btn-primary btn-full">Login</button>
             </form>
 
-            <div class="divider">OR</div>
-
-            <form id="riotLoginForm" class="auth-form">
-                <input type="hidden" name="action" value="riot_login">
-
-                <div class="form-group">
-                    <label for="riot_id">Riot ID</label>
-                    <input type="text" id="riot_id" name="riot_id" placeholder="Name#TAG" required>
-                    <small>Enter your Riot ID (e.g., PlayerName#NA1)</small>
-                </div>
-
-                <button type="submit" class="btn btn-secondary btn-full">Login with Riot</button>
-            </form>
-
             <p class="auth-link">
                 Don't have an account? <a href="register.php">Register here</a>
+            </p>
+
+            <p class="auth-link">
+                <a href="forgot_password.php">Forgot your password?</a>
             </p>
         </div>
     </main>

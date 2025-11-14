@@ -40,7 +40,7 @@ if (isLoggedIn()) {
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
-                    <small>At least 6 characters</small>
+                    <small>At least 8 characters, 1 number, and 1 symbol</small>
                 </div>
 
                 <div class="form-group">
