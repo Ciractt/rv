@@ -14,7 +14,7 @@ define('RIOT_API_REGION', 'americas'); // americas, europe, asia, sea
 
 // Site configuration
 define('SITE_URL', 'http://localhost/riftbound');
-define('SITE_NAME', 'RiftDeck - Alpha');
+define('SITE_NAME', 'RiftVault.gg');
 
 // Create database connection
 function getDB() {

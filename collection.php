@@ -55,162 +55,163 @@ $sets = $pdo->query("SELECT DISTINCT set_name FROM cards WHERE set_name IS NOT N
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Collection - <?php echo SITE_NAME; ?></title>
+
+    <!-- Single CSS File -->
     <link rel="stylesheet" href="css/theme.css">
+
     <style>
+        /* Collection-specific styles that extend theme.css */
         .collection-header {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background: var(--bg-secondary);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-primary);
+        }
+
+        .collection-header h1 {
+            margin: 0 0 var(--spacing-lg) 0;
         }
 
         .collection-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--spacing-lg);
         }
 
         .stat-card {
             text-align: center;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
+            padding: var(--spacing-lg);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
+            transition: all var(--transition-base);
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
         }
 
         .stat-value {
             font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             display: block;
+            margin-bottom: var(--spacing-xs);
         }
 
         .stat-label {
             font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.25rem;
+            color: var(--text-secondary);
         }
 
+        /* Collection Controls */
         .collection-controls {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background: var(--bg-secondary);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-primary);
         }
 
         .filter-group {
             display: flex;
-            gap: 0.75rem;
+            gap: var(--spacing-md);
             align-items: center;
             flex-wrap: wrap;
         }
 
-        .filter-select {
-            padding: 0.5rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-            font-size: 0.9rem;
-            min-width: 140px;
-        }
-
-        .filter-select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .search-input {
-            padding: 0.5rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            min-width: 250px;
-            font-size: 0.9rem;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        /* Collection Status Bar (matches cards.php info bar) */
+        /* Collection Status Bar */
         .collection-status-bar {
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background: var(--bg-secondary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-primary);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: var(--spacing-lg);
         }
 
         .status-info {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: var(--spacing-lg);
         }
 
         .status-text {
             font-size: 0.95rem;
-            color: #555;
+            color: var(--text-secondary);
+        }
+
+        .status-text strong {
+            color: var(--text-primary);
         }
 
         .status-controls {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: var(--spacing-md);
             flex-wrap: wrap;
         }
 
+        /* View Toggle */
         .view-toggle {
             display: flex;
             gap: 0;
-            background: #f0f0f0;
-            padding: 3px;
-            border-radius: 6px;
+            background: var(--bg-tertiary);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
         }
 
         .view-toggle-btn {
-            padding: 0.4rem 1rem;
+            padding: var(--spacing-sm) var(--spacing-lg);
             border: none;
             background: transparent;
             cursor: pointer;
-            border-radius: 4px;
-            font-weight: 500;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
             font-size: 0.9rem;
-            transition: all 0.2s;
-            color: #666;
+            transition: all var(--transition-base);
+            color: var(--text-secondary);
         }
 
         .view-toggle-btn:hover {
-            color: #667eea;
+            color: var(--text-primary);
         }
 
         .view-toggle-btn.active {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
 
+        /* Wishlist Toggle */
         .wishlist-toggle {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: var(--spacing-sm);
             cursor: pointer;
-            padding: 0.4rem 1rem;
-            background: #f8f9fa;
-            border-radius: 6px;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
             font-size: 0.9rem;
-            transition: all 0.2s;
+            transition: all var(--transition-base);
         }
 
         .wishlist-toggle:hover {
-            background: #e9ecef;
+            border-color: var(--accent-primary);
         }
 
         .wishlist-toggle input[type="checkbox"] {
@@ -219,83 +220,172 @@ $sets = $pdo->query("SELECT DISTINCT set_name FROM cards WHERE set_name IS NOT N
             cursor: pointer;
         }
 
-        .wishlist-toggle input[type="checkbox"]:checked + span {
-            color: #e74c3c;
-            font-weight: 600;
-        }
-
+        /* Collection Grid */
         .collection-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1.5rem;
-            padding: 1rem 0;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-md) 0;
         }
 
         .collection-card {
             position: relative;
-            border-radius: 10px;
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
         }
 
         .collection-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-primary);
         }
 
         .collection-card.unowned {
             filter: grayscale(100%);
             opacity: 0.4;
-            transition: all 0.3s ease;
+            transition: all var(--transition-base);
         }
 
         .collection-card.unowned:hover {
             filter: grayscale(0%);
             opacity: 1;
-            transform: translateY(-4px);
         }
 
         .card-image-container {
             position: relative;
             cursor: pointer;
+            aspect-ratio: 2/3;
         }
 
         .card-image-container img {
             width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: block;
         }
 
-        .card-quantity-badge {
-            /* Removed - quantity now only shown in controls */
-            display: none;
+        /* Card Controls */
+        .card-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-primary);
         }
 
-        .card-energy-badge {
-            /* Hidden - already visible on card image */
-            display: none;
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
         }
 
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-base);
+            font-weight: 600;
+        }
+
+        .quantity-btn:hover {
+            background: var(--accent-secondary);
+            transform: scale(1.1);
+        }
+
+        .quantity-btn:disabled {
+            background: var(--bg-hover);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quantity-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-base);
+            color: var(--text-secondary);
+        }
+
+        .collection-card[data-owned="1"] .quantity-display {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .wishlist-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .wishlist-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            transform: scale(1.2);
+        }
+
+        .wishlist-btn.active {
+            color: var(--error);
+        }
+
+        .info-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--accent-primary);
+            transition: all var(--transition-base);
+            border-radius: var(--radius-full);
+        }
+
+        .info-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* Rarity Badge */
         .card-rarity-badge {
             position: absolute;
             bottom: 8px;
             left: 8px;
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
+            box-shadow: var(--shadow-sm);
         }
 
-        .card-rarity-badge.common { background: #95a5a6; color: white; }
+        .card-rarity-badge.common { background: var(--rarity-common); color: white; }
         .card-rarity-badge.uncommon { background: #3498db; color: white; }
-        .card-rarity-badge.rare { background: #f39c12; color: white; }
-        .card-rarity-badge.epic { background: #9b59b6; color: white; }
-        .card-rarity-badge.champion { background: #e74c3c; color: white; }
-        .card-rarity-badge.legend { background: #16a085; color: white; }
+        .card-rarity-badge.rare { background: var(--rarity-rare); color: white; }
+        .card-rarity-badge.epic { background: var(--rarity-epic); color: white; }
+        .card-rarity-badge.champion { background: var(--rarity-champion); color: white; }
+        .card-rarity-badge.legend { background: var(--rarity-legend); color: white; }
         .card-rarity-badge.showcase {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background: var(--rarity-showcase);
             background-size: 200% 200%;
             animation: shimmer 3s ease infinite;
             color: white;
@@ -309,132 +399,24 @@ $sets = $pdo->query("SELECT DISTINCT set_name FROM cards WHERE set_name IS NOT N
             100% { background-position: 0% 50%; }
         }
 
-        .card-value-badge {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(46, 204, 113, 0.95);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .card-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem;
-            background: #f8f9fa;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .quantity-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: #667eea;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .quantity-btn:hover {
-            background: #5568d3;
-            transform: scale(1.1);
-        }
-
-        .quantity-btn:disabled {
-            background: #ddd;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .quantity-display {
-            min-width: 40px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .collection-card[data-owned="1"] .quantity-display {
-            background: rgba(46, 204, 113, 0.15);
-            color: #27ae60;
-        }
-
-        .collection-card[data-owned="0"] .quantity-display {
-            color: #999;
-        }
-
-        .wishlist-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 1.3rem;
-            transition: all 0.2s;
-            border-radius: 50%;
-        }
-
-        .wishlist-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
-            transform: scale(1.2);
-        }
-
-        .wishlist-btn.active {
-            color: #e74c3c;
-        }
-
-        .info-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 1rem;
-            color: #667eea;
-            transition: all 0.2s;
-            border-radius: 50%;
-        }
-
-        .info-btn:hover {
-            background: rgba(102, 126, 234, 0.1);
-            transform: scale(1.1);
-        }
-
+        /* Empty State */
         .empty-state {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-2xl);
             text-align: center;
-            padding: 4rem 2rem;
-            color: #999;
+            box-shadow: var(--shadow-sm);
         }
 
         .empty-state-icon {
             font-size: 4rem;
-            margin-bottom: 1rem;
+            margin-bottom: var(--spacing-lg);
+            opacity: 0.5;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
-            .collection-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 1rem;
-            }
-
             .collection-controls,
             .collection-status-bar {
                 flex-direction: column;
@@ -463,6 +445,11 @@ $sets = $pdo->query("SELECT DISTINCT set_name FROM cards WHERE set_name IS NOT N
             .view-toggle-btn {
                 flex: 1;
             }
+
+            .collection-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: var(--spacing-md);
+            }
         }
     </style>
 </head>
@@ -475,7 +462,7 @@ $sets = $pdo->query("SELECT DISTINCT set_name FROM cards WHERE set_name IS NOT N
 
             <div class="collection-stats">
                 <div class="stat-card">
-                    <span class="stat-value"><?php echo number_format($collection_value, 2); ?> €</span>
+                    <span class="stat-value"><?php echo number_format($collection_value, 2); ?>€</span>
                     <span class="stat-label">Collection Value</span>
                 </div>
                 <div class="stat-card">
@@ -493,9 +480,8 @@ $sets = $pdo->query("SELECT DISTINCT set_name FROM cards WHERE set_name IS NOT N
             </div>
         </div>
 
-        <!-- Unified Filter Bar (matching cards.php) -->
+        <!-- Unified Filter Bar -->
         <div class="collection-controls">
-            <!-- Left side: Main filters -->
             <div class="filter-group">
                 <input type="text" id="searchInput" class="search-input" placeholder="Search cards...">
 
@@ -531,7 +517,7 @@ $sets = $pdo->query("SELECT DISTINCT set_name FROM cards WHERE set_name IS NOT N
             </div>
         </div>
 
-        <!-- Collection Status Bar (matching cards.php info bar) -->
+        <!-- Collection Status Bar -->
         <div class="collection-status-bar">
             <div class="status-info">
                 <span class="status-text">
@@ -591,7 +577,7 @@ $sets = $pdo->query("SELECT DISTINCT set_name FROM cards WHERE set_name IS NOT N
                             <img src="<?php echo htmlspecialchars($card['card_art_url']); ?>"
                                  alt="<?php echo htmlspecialchars($card['name']); ?>">
                         <?php else: ?>
-                            <div style="aspect-ratio: 2/3; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary);">
                                 <span><?php echo htmlspecialchars($card['name']); ?></span>
                             </div>
                         <?php endif; ?>
