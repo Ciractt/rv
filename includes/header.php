@@ -88,6 +88,12 @@ $logoUrl = SITE_URL . '/assets/logo.png'; // Update this path to your actual log
                             <span>👤</span>
                             Account Settings
                         </a>
+                       <?php if ($user):['is_admin']?>
+                        <a href="admin.php">
+                            <span>🔨</span>
+                            Admin
+                        </a>
+                        <?php endif; ?>
                         <a href="collection.php">
                             <span>📚</span>
                             My Collection
