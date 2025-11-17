@@ -18,6 +18,139 @@ $user = getCurrentUser();
 
     <!-- Single CSS File -->
     <link rel="stylesheet" href="css/theme.css">
+    <style>
+        /* News Grid - Horizontal Compact Cards */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+        }
+
+        /* News Card Specific Styles - Compact Rectangular Cards */
+        .news-card {
+            position: relative;
+            overflow: hidden;
+            height: 320px;
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+        }
+
+        .news-card-image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 160px;
+            overflow: hidden;
+        }
+
+        .news-card-background {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-slow);
+        }
+
+        .news-card:hover .news-card-background {
+            transform: scale(1.1);
+        }
+
+        .news-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(18, 23, 41, 0.9));
+        }
+
+        .news-card-content {
+            position: relative;
+            margin-top: 160px;
+            padding: var(--spacing-sm) var(--spacing-md) var(--spacing-lg);
+            background: var(--bg-tertiary);
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 160px;
+        }
+
+        .news-card h3 {
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            line-height: 1.3;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .news-card p {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: var(--spacing-xs);
+            font-size: 0.85rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            flex: 1;
+        }
+
+        .news-meta {
+            display: flex;
+            gap: var(--spacing-sm);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .news-card .btn {
+            margin-top: auto;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        /* Fallback for news cards without images */
+        .news-card:not(:has(.news-card-image-container)) {
+            height: 320px;
+        }
+
+        .news-card:not(:has(.news-card-image-container)) .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-md);
+            display: block;
+            text-align: center;
+            padding-top: var(--spacing-lg);
+        }
+
+        .news-card:not(:has(.news-card-image-container)) .news-card-content {
+            margin-top: 0;
+            padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
+            height: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .news-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .news-card {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <?php include 'includes/header.php'; ?>
@@ -85,6 +218,68 @@ $user = getCurrentUser();
         <?php endif; ?>
 
         <!-- Latest News Section -->
+        <?php
+        $stmt = $pdo->query("
+            SELECT n.*, u.username as author_name
+            FROM news_posts n
+            JOIN users u ON n.author_id = u.id
+            WHERE n.is_published = TRUE
+            ORDER BY n.published_at DESC
+            LIMIT 3
+        ");
+        $latest_news = $stmt->fetchAll();
+        ?>
+
+        <?php if (!empty($latest_news)): ?>
+        <section class="featured-section">
+            <div class="section-header">
+                <h2 class="section-title">Latest News</h2>
+                <a href="news.php" class="btn btn-secondary btn-small">View All News →</a>
+            </div>
+            <div class="news-grid">
+                <?php foreach ($latest_news as $news): ?>
+                    <div class="feature-card news-card" onclick="window.location.href='news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>'">
+                        <?php if ($news['featured_image']): ?>
+                            <div class="news-card-image-container">
+                                <img src="<?php echo htmlspecialchars($news['featured_image']); ?>"
+                                     alt="<?php echo htmlspecialchars($news['title']); ?>"
+                                     class="news-card-background">
+                                <div class="news-card-overlay"></div>
+                            </div>
+                        <?php else: ?>
+                            <span class="feature-icon">📰</span>
+                        <?php endif; ?>
+
+                        <div class="news-card-content">
+                            <h3><?php echo htmlspecialchars($news['title']); ?></h3>
+
+                            <?php if ($news['excerpt']): ?>
+                                <p>
+                                    <?php
+                                    $excerpt = htmlspecialchars($news['excerpt']);
+                                    echo strlen($excerpt) > 80 ? substr($excerpt, 0, 80) . '...' : $excerpt;
+                                    ?>
+                                </p>
+                            <?php endif; ?>
+
+                            <div class="news-meta">
+                                <span><?php echo date('M j, Y', strtotime($news['published_at'])); ?></span>
+                                <span>•</span>
+                                <span><?php echo number_format($news['view_count']); ?> views</span>
+                            </div>
+
+                            <a href="news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>"
+                               class="btn btn-secondary btn-small"
+                               onclick="event.stopPropagation();">
+                                Read More
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+        <?php else: ?>
+        <!-- Fallback: Show static placeholder if no news posts exist -->
         <section class="featured-section">
             <div class="section-header">
                 <h2 class="section-title">Latest News</h2>
@@ -92,26 +287,24 @@ $user = getCurrentUser();
             <div class="features-grid">
                 <div class="feature-card">
                     <span class="feature-icon">📢</span>
-                    <h3>New Set Released!</h3>
-                    <p>The latest expansion is now available with 150+ new cards to collect and powerful new mechanics to master.</p>
-                    <a href="#" class="btn btn-secondary btn-small">Read More</a>
+                    <h3>Coming Soon</h3>
+                    <p>Stay tuned for the latest updates, announcements, and news about Riftbound!</p>
                 </div>
 
                 <div class="feature-card">
                     <span class="feature-icon">🏆</span>
-                    <h3>Tournament Season 2</h3>
-                    <p>Join our competitive season with amazing prizes. Registration opens next week!</p>
-                    <a href="#" class="btn btn-secondary btn-small">Learn More</a>
+                    <h3>Community Updates</h3>
+                    <p>Join our growing community and be the first to know about new features and events.</p>
                 </div>
 
                 <div class="feature-card">
                     <span class="feature-icon">⚡</span>
-                    <h3>Balance Update</h3>
-                    <p>Check out the latest balance changes and meta shifts affecting the competitive scene.</p>
-                    <a href="#" class="btn btn-secondary btn-small">View Changes</a>
+                    <h3>Game Updates</h3>
+                    <p>Check back regularly for balance changes, new cards, and meta discussions.</p>
                 </div>
             </div>
         </section>
+        <?php endif; ?>
 
         <!-- Community Decks Preview - 6 Decks (3 per row) -->
         <?php
