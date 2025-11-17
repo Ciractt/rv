@@ -4,8 +4,8 @@ session_start();
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_USER', 'riftbound');
+define('DB_PASS', '![@ef[hseux,Jv4Wxf');
 define('DB_NAME', 'riftbound');
 
 // Riot API configuration
@@ -13,7 +13,7 @@ define('RIOT_API_KEY', 'YOUR_RIOT_API_KEY_HERE');
 define('RIOT_API_REGION', 'americas'); // americas, europe, asia, sea
 
 // Site configuration
-define('SITE_URL', 'http://localhost/riftbound');
+define('SITE_URL', 'https://riftvault.gg');
 define('SITE_NAME', 'RiftVault.gg');
 
 // Create database connection

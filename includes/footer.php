@@ -46,10 +46,10 @@
             <div class="footer-section">
                 <h3>Resources</h3>
                 <ul class="footer-links">
-                    <li><a href="https://riftmana.com" target="_blank" rel="noopener">
+                    <li><a href="https://riftbound.leagueoflegends.com" target="_blank" rel="noopener">
                         Official Game Site
                     </a></li>
-                    <li><a href="#">
+                    <li><a href="https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/dbc96e31db9d0257b0791aafb6dbb0cd219d3efb.pdf">
                         Game Rules
                     </a></li>
                     <li><a href="#">
@@ -82,14 +82,14 @@
             <div class="footer-copyright">
                 <p>
                     © <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>.
-                    RiftDeck was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games.
+                    RiftVault.gg was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games.
                     Riot Games does not endorse or sponsor this project.
                 </p>
             </div>
             <ul class="footer-legal">
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms of Service</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="/privacy">Privacy Policy</a></li>
+                <li><a href="/terms">Terms of Service</a></li>
+                <li><a href="mailto:support@riftvault.gg">Contact</a></li>
             </ul>
         </div>
     </div>
