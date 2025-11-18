@@ -19,69 +19,116 @@ $user = getCurrentUser();
     <!-- Single CSS File -->
     <link rel="stylesheet" href="css/theme.css">
     <style>
-        /* News Grid - Horizontal Compact Cards */
-        .news-grid {
+        /* ============================================
+           UNIFIED CARD GRID SYSTEM
+           ============================================ */
+
+        /* Unified grid for all homepage sections */
+        .unified-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(6, 1fr);
             gap: var(--spacing-lg);
             margin-top: var(--spacing-lg);
         }
 
-        /* News Card Specific Styles - Compact Rectangular Cards */
-        .news-card {
-            position: relative;
+        /* News grid - always 4 columns for wider cards */
+        .unified-grid.grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        /* Unified card styling */
+        .unified-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            height: 320px;
+            transition: all var(--transition-base);
+            cursor: pointer;
             display: flex;
             flex-direction: column;
-            max-width: 400px;
+            height: 100%;
         }
 
-        .news-card-image-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 160px;
+        .unified-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow), var(--shadow-lg);
+        }
+
+        /* Card image container - matches actual card ratio (515x719) */
+        .unified-card-image {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 515/719;
             overflow: hidden;
+            background: var(--bg-primary);
         }
 
-        .news-card-background {
+        /* News cards use a landscape/square ratio for wider appearance */
+        .unified-card.news-card .unified-card-image {
+            aspect-ratio: 16/9;
+        }
+
+        .unified-card-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             transition: transform var(--transition-slow);
         }
 
-        .news-card:hover .news-card-background {
-            transform: scale(1.1);
+        /* News card images should cover since they're photos, not game cards */
+        .unified-card.news-card .unified-card-image img {
+            object-fit: cover;
         }
 
-        .news-card-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(18, 23, 41, 0.9));
+        .unified-card:hover .unified-card-image img {
+            transform: scale(1.05);
         }
 
-        .news-card-content {
-            position: relative;
-            margin-top: 160px;
-            padding: var(--spacing-sm) var(--spacing-md) var(--spacing-lg);
-            background: var(--bg-tertiary);
-            z-index: 1;
-            flex: 1;
+        /* Placeholder for cards without images */
+        .unified-card-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            background: var(--accent-gradient);
+            padding: var(--spacing-md);
+            text-align: center;
+        }
+
+        .unified-card-placeholder .placeholder-icon {
+            font-size: 2.5rem;
+            opacity: 0.9;
+        }
+
+        .unified-card-placeholder .placeholder-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .unified-card-placeholder .placeholder-type {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Card content area */
+        .unified-card-content {
+            padding: var(--spacing-md);
             display: flex;
             flex-direction: column;
-            height: 160px;
+            flex: 1;
         }
 
-        .news-card h3 {
-            margin-bottom: var(--spacing-xs);
+        .unified-card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
             color: var(--text-primary);
-            font-size: 1.1rem;
+            margin: 0 0 var(--spacing-xs);
             line-height: 1.3;
             overflow: hidden;
             display: -webkit-box;
@@ -89,11 +136,17 @@ $user = getCurrentUser();
             -webkit-box-orient: vertical;
         }
 
-        .news-card p {
+        .unified-card-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .unified-card-description {
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            line-height: 1.5;
-            margin-bottom: var(--spacing-xs);
-            font-size: 0.85rem;
+            line-height: 1.4;
+            margin: 0;
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -101,53 +154,94 @@ $user = getCurrentUser();
             flex: 1;
         }
 
-        .news-meta {
+        .unified-card-stats {
             display: flex;
-            gap: var(--spacing-sm);
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .news-card .btn {
+            justify-content: space-between;
+            padding-top: var(--spacing-sm);
             margin-top: auto;
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-            width: 100%;
+            border-top: 1px solid var(--border-primary);
+            font-size: 0.7rem;
+            color: var(--text-muted);
         }
 
-        /* Fallback for news cards without images */
-        .news-card:not(:has(.news-card-image-container)) {
-            height: 320px;
+        /* Featured cards specific - no content area, just image */
+        .unified-card.card-only {
+            aspect-ratio: 515/719;
         }
 
-        .news-card:not(:has(.news-card-image-container)) .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: var(--spacing-md);
-            display: block;
-            text-align: center;
-            padding-top: var(--spacing-lg);
+        .unified-card.card-only .unified-card-image {
+            aspect-ratio: unset;
+            height: 100%;
         }
 
-        .news-card:not(:has(.news-card-image-container)) .news-card-content {
-            margin-top: 0;
-            padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
-            height: auto;
+        /* Rarity-based hover effects for game cards */
+        .unified-card[data-rarity="common"]:hover {
+            box-shadow: 0 8px 20px rgba(149, 165, 166, 0.5);
+        }
+
+        .unified-card[data-rarity="rare"]:hover {
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.5);
+        }
+
+        .unified-card[data-rarity="epic"]:hover {
+            box-shadow: 0 8px 20px rgba(155, 89, 182, 0.5);
+        }
+
+        .unified-card[data-rarity="champion"]:hover {
+            box-shadow: 0 8px 20px rgba(243, 156, 18, 0.6);
+        }
+
+        /* Responsive breakpoints */
+        @media (max-width: 1400px) {
+            .unified-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .unified-grid.grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         @media (max-width: 1024px) {
-            .news-grid {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            .unified-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .unified-grid.grid-4 {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media (max-width: 768px) {
-            .news-grid {
+            .unified-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .unified-grid.grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .unified-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-md);
+            }
+
+            .unified-grid.grid-4 {
                 grid-template-columns: 1fr;
             }
 
-            .news-card {
-                max-width: 100%;
+            .unified-card-content {
+                padding: var(--spacing-sm);
+            }
+
+            .unified-card-title {
+                font-size: 0.8rem;
+            }
+
+            .unified-card-description {
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -191,23 +285,21 @@ $user = getCurrentUser();
                 <h2 class="section-title">Featured Cards</h2>
                 <a href="cards2.php" class="btn btn-secondary btn-small">View All →</a>
             </div>
-            <div class="card-gallery">
+            <div class="unified-grid">
                 <?php foreach ($featured_cards as $card): ?>
-                    <div class="gallery-card-item"
+                    <div class="unified-card card-only"
                          data-rarity="<?php echo strtolower($card['rarity']); ?>"
                          onclick="showCardDetails(<?php echo htmlspecialchars(json_encode($card), ENT_QUOTES, 'UTF-8'); ?>)">
-                        <div class="gallery-card-image">
+                        <div class="unified-card-image">
                             <?php if ($card['card_art_url']): ?>
                                 <img src="<?php echo htmlspecialchars($card['card_art_url']); ?>"
                                      alt="<?php echo htmlspecialchars($card['name']); ?>"
                                      draggable="false"
                                      loading="lazy">
                             <?php else: ?>
-                                <div class="card-placeholder-full">
-                                    <div class="placeholder-content">
-                                        <span class="placeholder-name"><?php echo htmlspecialchars($card['name']); ?></span>
-                                        <span class="placeholder-type"><?php echo $card['card_type']; ?></span>
-                                    </div>
+                                <div class="unified-card-placeholder">
+                                    <span class="placeholder-name"><?php echo htmlspecialchars($card['name']); ?></span>
+                                    <span class="placeholder-type"><?php echo $card['card_type']; ?></span>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -225,7 +317,7 @@ $user = getCurrentUser();
             JOIN users u ON n.author_id = u.id
             WHERE n.is_published = TRUE
             ORDER BY n.published_at DESC
-            LIMIT 3
+            LIMIT 4
         ");
         $latest_news = $stmt->fetchAll();
         ?>
@@ -236,43 +328,32 @@ $user = getCurrentUser();
                 <h2 class="section-title">Latest News</h2>
                 <a href="news.php" class="btn btn-secondary btn-small">View All News →</a>
             </div>
-            <div class="news-grid">
+            <div class="unified-grid grid-4">
                 <?php foreach ($latest_news as $news): ?>
-                    <div class="feature-card news-card" onclick="window.location.href='news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>'">
-                        <?php if ($news['featured_image']): ?>
-                            <div class="news-card-image-container">
+                    <div class="unified-card news-card" onclick="window.location.href='news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>'">
+                        <div class="unified-card-image">
+                            <?php if ($news['featured_image']): ?>
                                 <img src="<?php echo htmlspecialchars($news['featured_image']); ?>"
                                      alt="<?php echo htmlspecialchars($news['title']); ?>"
-                                     class="news-card-background">
-                                <div class="news-card-overlay"></div>
-                            </div>
-                        <?php else: ?>
-                            <span class="feature-icon">📰</span>
-                        <?php endif; ?>
-
-                        <div class="news-card-content">
-                            <h3><?php echo htmlspecialchars($news['title']); ?></h3>
-
-                            <?php if ($news['excerpt']): ?>
-                                <p>
-                                    <?php
-                                    $excerpt = htmlspecialchars($news['excerpt']);
-                                    echo strlen($excerpt) > 80 ? substr($excerpt, 0, 80) . '...' : $excerpt;
-                                    ?>
-                                </p>
+                                     loading="lazy">
+                            <?php else: ?>
+                                <div class="unified-card-placeholder">
+                                    <span class="placeholder-icon">📰</span>
+                                </div>
                             <?php endif; ?>
-
-                            <div class="news-meta">
-                                <span><?php echo date('M j, Y', strtotime($news['published_at'])); ?></span>
-                                <span>•</span>
-                                <span><?php echo number_format($news['view_count']); ?> views</span>
+                        </div>
+                        <div class="unified-card-content">
+                            <h3 class="unified-card-title"><?php echo htmlspecialchars($news['title']); ?></h3>
+                            <div class="unified-card-meta">
+                                <?php echo date('M j, Y', strtotime($news['published_at'])); ?>
                             </div>
-
-                            <a href="news.php?slug=<?php echo htmlspecialchars($news['slug']); ?>"
-                               class="btn btn-secondary btn-small"
-                               onclick="event.stopPropagation();">
-                                Read More
-                            </a>
+                            <?php if ($news['excerpt']): ?>
+                                <p class="unified-card-description"><?php echo htmlspecialchars($news['excerpt']); ?></p>
+                            <?php endif; ?>
+                            <div class="unified-card-stats">
+                                <span>👁 <?php echo number_format($news['view_count']); ?></span>
+                                <span>by <?php echo htmlspecialchars($news['author_name']); ?></span>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -284,29 +365,59 @@ $user = getCurrentUser();
             <div class="section-header">
                 <h2 class="section-title">Latest News</h2>
             </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <span class="feature-icon">📢</span>
-                    <h3>Coming Soon</h3>
-                    <p>Stay tuned for the latest updates, announcements, and news about Riftbound!</p>
+            <div class="unified-grid grid-4">
+                <div class="unified-card news-card">
+                    <div class="unified-card-image">
+                        <div class="unified-card-placeholder">
+                            <span class="placeholder-icon">📢</span>
+                        </div>
+                    </div>
+                    <div class="unified-card-content">
+                        <h3 class="unified-card-title">Coming Soon</h3>
+                        <p class="unified-card-description">Stay tuned for the latest updates and announcements!</p>
+                    </div>
                 </div>
 
-                <div class="feature-card">
-                    <span class="feature-icon">🏆</span>
-                    <h3>Community Updates</h3>
-                    <p>Join our growing community and be the first to know about new features and events.</p>
+                <div class="unified-card news-card">
+                    <div class="unified-card-image">
+                        <div class="unified-card-placeholder">
+                            <span class="placeholder-icon">🏆</span>
+                        </div>
+                    </div>
+                    <div class="unified-card-content">
+                        <h3 class="unified-card-title">Community Updates</h3>
+                        <p class="unified-card-description">Join our growing community and be the first to know!</p>
+                    </div>
                 </div>
 
-                <div class="feature-card">
-                    <span class="feature-icon">⚡</span>
-                    <h3>Game Updates</h3>
-                    <p>Check back regularly for balance changes, new cards, and meta discussions.</p>
+                <div class="unified-card news-card">
+                    <div class="unified-card-image">
+                        <div class="unified-card-placeholder">
+                            <span class="placeholder-icon">⚡</span>
+                        </div>
+                    </div>
+                    <div class="unified-card-content">
+                        <h3 class="unified-card-title">Game Updates</h3>
+                        <p class="unified-card-description">Check back for balance changes and new cards.</p>
+                    </div>
+                </div>
+
+                <div class="unified-card news-card">
+                    <div class="unified-card-image">
+                        <div class="unified-card-placeholder">
+                            <span class="placeholder-icon">🎮</span>
+                        </div>
+                    </div>
+                    <div class="unified-card-content">
+                        <h3 class="unified-card-title">Events</h3>
+                        <p class="unified-card-description">Upcoming tournaments and special events.</p>
+                    </div>
                 </div>
             </div>
         </section>
         <?php endif; ?>
 
-        <!-- Community Decks Preview - 6 Decks (3 per row) -->
+        <!-- Community Decks Preview -->
         <?php
         $stmt = $pdo->query("
             SELECT d.*, u.username, c.card_art_url as featured_card_image,
@@ -327,40 +438,33 @@ $user = getCurrentUser();
                 <h2 class="section-title">Community Decks</h2>
                 <a href="community_decks.php" class="btn btn-secondary btn-small">View All →</a>
             </div>
-            <div class="community-decks-grid">
+            <div class="unified-grid">
                 <?php foreach ($community_decks as $deck): ?>
-                    <div class="feature-card deck-card" onclick="window.location.href='view_deck.php?id=<?php echo $deck['id']; ?>'">
-                        <?php if ($deck['featured_card_image']): ?>
-                            <div style="margin: -1rem -1rem 1rem -1rem; border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%); padding: 1rem;">
+                    <div class="unified-card" onclick="window.location.href='view_deck.php?id=<?php echo $deck['id']; ?>'">
+                        <div class="unified-card-image">
+                            <?php if ($deck['featured_card_image']): ?>
                                 <img src="<?php echo htmlspecialchars($deck['featured_card_image']); ?>"
                                      alt="Featured card"
-                                     style="width: 100%; border-radius: var(--radius-md);">
-                            </div>
-                        <?php endif; ?>
-
-                        <h3><?php echo htmlspecialchars($deck['deck_name']); ?></h3>
-
-                        <p class="deck-meta" style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.85rem;">
-                            by <strong><?php echo htmlspecialchars($deck['username']); ?></strong>
-                        </p>
-
-                        <?php if ($deck['description']): ?>
-                            <p style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
-                                <?php
-                                $desc = htmlspecialchars($deck['description']);
-                                echo strlen($desc) > 80 ? substr($desc, 0, 80) . '...' : $desc;
-                                ?>
-                            </p>
-                        <?php endif; ?>
-
-                        <div style="display: flex; justify-content: space-between; margin: 1rem 0 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border-primary); font-size: 0.8rem; color: var(--text-muted);">
-                            <span>📊 <?php echo $deck['total_cards']; ?> cards</span>
-                            <span>❤️ <?php echo $deck['like_count']; ?> likes</span>
+                                     loading="lazy">
+                            <?php else: ?>
+                                <div class="unified-card-placeholder">
+                                    <span class="placeholder-icon">🃏</span>
+                                </div>
+                            <?php endif; ?>
                         </div>
-
-                        <a href="view_deck.php?id=<?php echo $deck['id']; ?>" class="btn btn-secondary btn-small" onclick="event.stopPropagation();">
-                            View Deck
-                        </a>
+                        <div class="unified-card-content">
+                            <h3 class="unified-card-title"><?php echo htmlspecialchars($deck['deck_name']); ?></h3>
+                            <div class="unified-card-meta">
+                                by <?php echo htmlspecialchars($deck['username']); ?>
+                            </div>
+                            <?php if ($deck['description']): ?>
+                                <p class="unified-card-description"><?php echo htmlspecialchars($deck['description']); ?></p>
+                            <?php endif; ?>
+                            <div class="unified-card-stats">
+                                <span>📊 <?php echo $deck['total_cards'] ?: 0; ?> cards</span>
+                                <span>❤️ <?php echo $deck['like_count']; ?></span>
+                            </div>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
